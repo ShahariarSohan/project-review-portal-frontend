@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import {
+  Shield01Icon,
+  Mail01Icon,
+  LockPasswordIcon,
+  ViewIcon,
+  ViewOffIcon,
+} from "hugeicons-react";
 import { loginUser } from "@/services/auth/auth";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,46 +30,51 @@ export default function LoginPage() {
       if (res.success) {
         router.push("/dashboard");
       } else {
-        setError(res.message || "Invalid email or password");
+        setError(res.message || "Invalid credentials.");
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred during login");
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-100/70 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-200 text-white">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="w-12 h-12 rounded-xl bg-teal-800 text-teal-100 flex items-center justify-center mb-4 shadow-sm border border-teal-700">
+            <Shield01Icon className="w-6 h-6 stroke-[2]" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Project Review Portal</h1>
-          <p className="text-sm text-slate-500 mt-1">Sign in to your account</p>
+          <h1 className="font-heading text-2xl font-bold text-slate-900 tracking-tight">
+            Project Review Portal
+          </h1>
+          <p className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">
+            Mentor Evaluation & Student Submission Console
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
+        <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-8">
           <form onSubmit={handleLogin} className="space-y-5">
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm font-medium border border-red-100">
+              <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-200">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 font-heading">
+                Email Address
+              </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Mail01Icon className="w-4 h-4" />
                 </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all"
                   placeholder="admin@reviewportal.com"
                   required
                 />
@@ -70,18 +82,18 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-semibold text-slate-700">Password</label>
-              </div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 font-heading">
+                Password
+              </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <LockPasswordIcon className="w-4 h-4" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all font-mono"
                   placeholder="Password"
                   required
                 />
@@ -90,23 +102,27 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <ViewOffIcon className="w-4 h-4" />
+                  ) : (
+                    <ViewIcon className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-teal-800 hover:bg-teal-900 text-white font-heading font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </button>
+              {isLoading ? "Signing in..." : "Sign In to Console"}
+            </Button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-8">
-          Project Review Portal. All rights reserved.
+        <p className="text-center text-xs text-slate-400 mt-8 font-mono">
+          Project Review Portal
         </p>
       </div>
     </div>

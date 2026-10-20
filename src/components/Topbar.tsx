@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, Settings, LogOut } from "lucide-react";
+import {
+  Settings02Icon,
+  Logout01Icon,
+} from "hugeicons-react";
 import { logoutUser, getUserProfile } from "@/services/auth/auth";
 
 export default function Topbar() {
@@ -44,51 +47,43 @@ export default function Topbar() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-      <div>
-        <h2 className="text-sm font-semibold text-slate-700">Project Review Portal</h2>
+    <header className="h-14 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-10">
+      <div className="flex items-center gap-2">
+        <span className="font-heading text-xs font-bold uppercase tracking-wider text-slate-400">
+          Portal
+        </span>
+        <span className="text-slate-300">/</span>
+        <span className="font-heading text-xs font-semibold text-slate-700">
+          Management Console
+        </span>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="relative" ref={adminRef}>
           <div
             onClick={() => setIsAdminOpen(!isAdminOpen)}
-            className="flex items-center gap-3 cursor-pointer group"
+            className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border-2 border-transparent group-hover:border-indigo-200 transition-all">
-              {user?.profileImage ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={user.profileImage}
-                  alt={user?.name || "User"}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-indigo-600 text-white font-bold text-sm flex items-center justify-center">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </div>
-              )}
+            <div className="w-8 h-8 rounded-md bg-teal-800 text-teal-100 flex items-center justify-center font-heading font-bold text-xs border border-teal-700">
+              {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-sm font-semibold text-slate-700">
-                {user?.name || "Admin User"}
+              <span className="font-heading text-xs font-semibold text-slate-800">
+                {user?.name || "Admin"}
               </span>
-              <span className="text-xs text-slate-400 font-medium capitalize">
-                {user?.role ? user.role.toLowerCase() : "Administrator"}
+              <span className="font-mono text-[10px] text-teal-700 uppercase tracking-wider font-semibold">
+                {user?.role || "ADMIN"}
               </span>
             </div>
-            <ChevronDown
-              className={`w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-all ${
-                isAdminOpen ? "rotate-180" : ""
-              }`}
-            />
           </div>
 
           {isAdminOpen && (
-            <div className="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50">
-              <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                <p className="text-xs text-slate-500 font-medium">Signed in as</p>
-                <p className="text-sm font-semibold text-slate-800 truncate">
+            <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-md border border-slate-200 py-1.5 z-50">
+              <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                <p className="text-[10px] font-heading font-semibold uppercase tracking-wider text-slate-400">
+                  Signed in as
+                </p>
+                <p className="font-mono text-xs text-slate-700 truncate mt-0.5">
                   {user?.email || "admin@reviewportal.com"}
                 </p>
               </div>
@@ -96,9 +91,9 @@ export default function Topbar() {
               <Link
                 href="/dashboard/settings"
                 onClick={() => setIsAdminOpen(false)}
-                className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-slate-700 font-medium hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+                className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-xs font-heading font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               >
-                <Settings className="w-4 h-4" />
+                <Settings02Icon className="w-4 h-4 text-slate-500" />
                 <span>Account Settings</span>
               </Link>
 
@@ -106,9 +101,9 @@ export default function Topbar() {
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-heading font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
               >
-                <LogOut className="w-4 h-4" />
+                <Logout01Icon className="w-4 h-4 text-rose-500" />
                 <span>Sign Out</span>
               </button>
             </div>

@@ -1,4 +1,5 @@
-import { FolderGit2, Plus, Search, Filter } from "lucide-react";
+import { Search01Icon, FilterIcon, PlusSignIcon } from "hugeicons-react";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectsPage() {
   const projects = [
@@ -12,61 +13,61 @@ export default function ProjectsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Projects</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Manage and review student project submissions.</p>
+          <h1 className="font-heading text-xl font-bold text-slate-900 tracking-tight">Project Submissions</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Evaluation queue, code repository links, and assignment status.</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm self-start sm:self-auto">
-          <Plus className="w-4 h-4" />
+        <Button className="bg-teal-800 hover:bg-teal-900 text-white font-heading font-semibold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-2xs self-start sm:self-auto cursor-pointer">
+          <PlusSignIcon className="w-3.5 h-3.5" />
           <span>New Submission</span>
-        </button>
+        </Button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className="flex items-center gap-2.5">
+        <div className="relative flex-1 max-w-sm">
+          <Search01Icon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search projects by title or student..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Search projects or students..."
+            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-700"
           />
         </div>
-        <button className="flex items-center gap-2 px-3.5 py-2 border border-slate-200 bg-white rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-          <Filter className="w-4 h-4 text-slate-500" />
+        <button className="flex items-center gap-1.5 px-3 py-2 border border-slate-200 bg-white rounded-lg text-xs font-heading font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer">
+          <FilterIcon className="w-3.5 h-3.5 text-slate-500" />
           <span>Filter</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-100">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 text-[10px] font-heading font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200/80">
               <tr>
-                <th className="px-6 py-3.5 font-semibold">ID</th>
-                <th className="px-6 py-3.5 font-semibold">Project Title</th>
-                <th className="px-6 py-3.5 font-semibold">Student</th>
-                <th className="px-6 py-3.5 font-semibold">Track</th>
-                <th className="px-6 py-3.5 font-semibold">Assigned Reviewer</th>
-                <th className="px-6 py-3.5 font-semibold">Status</th>
+                <th className="px-6 py-3">Reference</th>
+                <th className="px-6 py-3">Project Title</th>
+                <th className="px-6 py-3">Student</th>
+                <th className="px-6 py-3">Track</th>
+                <th className="px-6 py-3">Assigned Mentor</th>
+                <th className="px-6 py-3">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {projects.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-6 py-4 font-mono text-xs font-semibold text-slate-500">{p.id}</td>
-                  <td className="px-6 py-4 font-semibold text-slate-900">{p.title}</td>
-                  <td className="px-6 py-4">{p.student}</td>
-                  <td className="px-6 py-4 text-slate-500">{p.track}</td>
-                  <td className="px-6 py-4 text-slate-600">{p.reviewer}</td>
-                  <td className="px-6 py-4">
+                <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="px-6 py-3.5 font-mono text-[11px] text-slate-500">{p.id}</td>
+                  <td className="px-6 py-3.5 font-heading font-semibold text-slate-900">{p.title}</td>
+                  <td className="px-6 py-3.5">{p.student}</td>
+                  <td className="px-6 py-3.5 text-slate-500">{p.track}</td>
+                  <td className="px-6 py-3.5 text-slate-600">{p.reviewer}</td>
+                  <td className="px-6 py-3.5">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-heading font-semibold tracking-wider uppercase border ${
                         p.status === "APPROVED"
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          ? "bg-teal-50 text-teal-800 border-teal-200"
                           : p.status === "PENDING"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-rose-50 text-rose-700 border border-rose-200"
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : "bg-rose-50 text-rose-800 border-rose-200"
                       }`}
                     >
                       {p.status}
