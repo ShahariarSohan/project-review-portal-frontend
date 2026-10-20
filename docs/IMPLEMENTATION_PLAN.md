@@ -29,15 +29,17 @@ The platform provides role-adaptive layouts and interfaces for 3 distinct roles:
    - Access to Mentor Review Dashboard.
    - Server-side paginated data table showing all student submissions.
    - Server-side status filters (`PENDING`, `APPROVED`, `REJECTED`) and search filters (by title, student name, email).
-   - Review Action modal for approving or rejecting submissions with structured feedback notes.
+   - Dedicated **"View Details" Modal**: Inspect complete submission information, full description, repo/demo links, and review records.
+   - **One-Time Review Action Modal**: Approve or reject `PENDING` projects with feedback notes (review decisions are final and cannot be modified once set).
    - Aggregated platform review statistics.
    - Profile overview in Settings (email visible, password change disabled).
 3. **ADMIN**:
-   - Complete access to all Mentor review capabilities and statistics.
+   - Complete supervisor access to all platform capabilities.
+   - **Admin Analytics Dashboard**: High-density executive console with metric cards and production-grade ShadCN/Recharts visual charts (Submission volume, review outcomes distribution, pass rate trends).
+   - Complete access to Mentor review capabilities and review queue.
    - Exclusive access to `/dashboard/users` (User Directory).
    - **"Add Mentor"** dialog to directly register new Mentors (Name, Email, Password).
-   - Ability to promote students to the `MENTOR` role.
-   - User account status management (`ACTIVE`, `BLOCKED`).
+   - User account status management (`ACTIVE`, `SUSPENDED`, `BANNED`). Role modification on existing accounts is disabled.
    - Profile overview in Settings (email visible, password change disabled).
 
 ---
@@ -166,29 +168,45 @@ To ensure evaluators can grade the project in seconds without manual friction:
     - Updates `?status=` in URL searchParams.
   - `SearchFilter.tsx`:
     - Search input updating `?searchTerm=` in URL searchParams with debounce.
-- **Review Action Dialog**:
+- **Review Action Dialog & Details Dialog**:
   - `src/components/modules/projects/ReviewActionDialog.tsx`:
-    - Opens when mentor clicks "Review" on any row.
-    - Displays student name, email, project title, clickable repository link, live demo link, and description.
-    - Mentor controls: "Approve" or "Reject" toggle.
-    - Textarea for review feedback notes.
+    - Opens when mentor/admin clicks "Review" on any `PENDING` row.
+    - **One-Time Final Decision**: Only available for projects with status `PENDING`. Once evaluated, the button is replaced by a "Reviewed" indicator or hidden in favor of the View button, locking the review decision permanently.
+    - Displays project title, candidate info, links, and text.
+    - Controls: "Approve" or "Reject" toggle, and textarea for feedback notes.
     - Submits via `reviewProject.ts`, shows success toast, and refreshes table via `revalidatePath`.
+  - `src/components/modules/projects/ProjectDetailsDialog.tsx`:
+    - Opens when mentor/admin clicks "View" button on ANY row (pending, approved, or rejected).
+    - Modal displays full project metadata:
+      - Project Title, Description (clean text wrap, no horizontal clipping)
+      - Student Full Name and Email Address
+      - Clickable GitHub Repository URL and Live Demo URL (with SVG external link icons)
+      - Submission Timestamp & Last Updated Timestamp
+      - Evaluation Decision Badge (`PENDING`, `APPROVED`, `REJECTED`)
+      - Reviewer information & full feedback notes (if reviewed) or "Awaiting mentor evaluation" status.
+- **Admin Overview & Visual Analytics**:
+  - `src/components/modules/admin/AdminAnalyticsDashboard.tsx` & `AdminCharts.tsx`:
+    - Designed as a real-world, data-dense engineering dashboard (zero cheesy AI gradients, zero emojis).
+    - Responsive Recharts components:
+      - **Submission & Review Volume Chart**: Bar or Area visualization tracking submissions vs reviews.
+      - **Review Decision Distribution**: Visual breakdown of Approved, Pending, and Rejected projects with pass-rate metric display.
+    - High-level KPI metric cards (Total Submissions, Pending Queue, Approvals, Rejections, Pass Rate, Total Accounts).
 - **Mentor Dashboard View**:
   - Aggregated Statistics Cards (Total Submissions, Pending Queue, Approved, Rejected, Pass Rate).
   - Search and Status Filter bar.
-  - Paginated Data Table with "Review" action on submissions.
+  - Paginated Data Table with "View" details button and "Review" action (for pending items).
 
 ---
 
 ### Feature 5: Admin User Directory & Mentor Creation (Admin View)
-**Goal**: Provide Admins with a directory to view all registered users, create new Mentors, and promote users to Mentors.
+**Goal**: Provide Admins with a directory to view all registered users, search/filter accounts, toggle/manage account status (`ACTIVE`, `SUSPENDED`, `BANNED`), and create new Mentors. Role editing is disabled.
 
 - **Validation Schema** in `src/zod/user.validation.ts`:
   - `createMentorSchema`: name (min 2), email, password (min 6).
 - **Server Actions & Fetchers** in `src/services/user/`:
   - `getAllUsers.ts`: Server fetcher calling `GET /api/v1/users`.
   - `createMentor.ts`: Server action calling `POST /api/v1/users/mentor`.
-  - `updateUserRole.ts`: Server action calling `PATCH /api/v1/users/:id/role`.
+  - `updateUserStatus.ts`: Server action calling `PATCH /api/v1/users/:id/status`.
 - **Components & Views**:
   - `src/components/modules/users/AddMentorDialog.tsx`:
     - Modal dialog with Name, Email, and Password fields.
@@ -197,8 +215,8 @@ To ensure evaluators can grade the project in seconds without manual friction:
   - `src/app/dashboard/users/page.tsx`:
     - Protected: Rendered only for `ADMIN`.
     - Top bar with "Add New Mentor" action button.
-    - Table of users showing Name, Email, Role badge, Status.
-    - Action dropdown: promote user to `MENTOR` or revert to `STUDENT`.
+    - Table of users showing Name, Email, Role badge, and Status badge.
+    - Status toggle/action: Activate or Suspend account. Role changes are disabled.
 
 ---
 

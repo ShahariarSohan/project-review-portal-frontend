@@ -6,6 +6,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import SearchFilter from "@/components/shared/SearchFilter";
 import SelectFilter from "@/components/shared/SelectFilter";
 import ReviewActionDialog from "./ReviewActionDialog";
+import ProjectDetailsDialog from "./ProjectDetailsDialog";
 
 interface IMentorReviewTableProps {
   data: IProjectListResponse;
@@ -41,7 +42,7 @@ export default function MentorReviewTable({ data }: IMentorReviewTableProps) {
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Submitted</th>
                   <th className="py-3 px-4">Reviewer Notes</th>
-                  <th className="py-3 px-4 text-right">Evaluation</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -130,9 +131,15 @@ export default function MentorReviewTable({ data }: IMentorReviewTableProps) {
                         )}
                       </td>
 
-                      {/* Action */}
+                      {/* Actions */}
                       <td className="py-3 px-4 text-right">
-                        <ReviewActionDialog project={project} />
+                        <div className="flex items-center justify-end">
+                          {project.status === "PENDING" ? (
+                            <ReviewActionDialog project={project} />
+                          ) : (
+                            <ProjectDetailsDialog project={project} />
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

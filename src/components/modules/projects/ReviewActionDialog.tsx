@@ -50,20 +50,19 @@ export default function ReviewActionDialog({ project }: IReviewActionDialogProps
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
           size="sm"
-          className="h-8 px-3 text-xs font-heading font-medium cursor-pointer border-slate-200 hover:border-teal-700 hover:text-teal-800"
+          className="h-8 px-2.5 text-xs font-heading font-semibold cursor-pointer bg-teal-800 text-white hover:bg-teal-900 transition-colors shadow-2xs"
         >
-          <NoteIcon className="w-3.5 h-3.5 mr-1 text-teal-700" />
-          <span>{project.status === "PENDING" ? "Review" : "Update"}</span>
+          <NoteIcon className="w-3.5 h-3.5 mr-1" />
+          <span>Review</span>
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Project Evaluation Review</DialogTitle>
-          <DialogDescription>
-            Examine student repository code, test demo, and record your assessment.
+          <DialogDescription className="text-xs text-slate-500">
+            Examine candidate repository, test live demo, and record your assessment. Decisions are final once confirmed.
           </DialogDescription>
         </DialogHeader>
 
@@ -75,7 +74,9 @@ export default function ReviewActionDialog({ project }: IReviewActionDialogProps
               Submitted by: <strong className="text-slate-800">{project.student.name}</strong> ({project.student.email})
             </p>
           </div>
-          <p className="text-slate-600 text-xs line-clamp-3 leading-relaxed">{project.description}</p>
+          <div className="max-h-32 overflow-y-auto pr-1">
+            <p className="text-slate-600 text-xs leading-relaxed whitespace-pre-wrap break-words">{project.description}</p>
+          </div>
           <div className="flex flex-wrap gap-2 pt-1">
             <a
               href={project.repoUrl}
