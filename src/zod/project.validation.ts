@@ -31,4 +31,16 @@ export const createProjectSchema = z.object({
     .max(3000, "Description cannot exceed 3000 characters"),
 });
 
+export const reviewProjectSchema = z.object({
+  status: z.enum(["APPROVED", "REJECTED"], {
+    message: "Status must be either APPROVED or REJECTED",
+  }),
+  reviewNotes: z
+    .string()
+    .trim()
+    .max(2000, "Review feedback cannot exceed 2000 characters")
+    .optional(),
+});
+
 export type CreateProjectFormData = z.infer<typeof createProjectSchema>;
+export type ReviewProjectFormData = z.infer<typeof reviewProjectSchema>;

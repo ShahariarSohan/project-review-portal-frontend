@@ -1,16 +1,32 @@
 import { getUserProfile } from "@/services/auth/auth";
 import { getMySubmissions } from "@/services/project/getMySubmissions";
 import { getMyStats } from "@/services/project/getMyStats";
+import { getProjects } from "@/services/project/getProjects";
+import { getProjectStats } from "@/services/project/getProjectStats";
 import SubmissionFormDialog from "@/components/modules/projects/SubmissionFormDialog";
 import StudentSubmissionsTable from "@/components/modules/projects/StudentSubmissionsTable";
 import StudentStatsCards from "@/components/modules/projects/StudentStatsCards";
+import MentorReviewTable from "@/components/modules/projects/MentorReviewTable";
+import ProjectStatsCards from "@/components/modules/projects/ProjectStatsCards";
 import { GraduationScrollIcon, Shield01Icon } from "hugeicons-react";
 
-export default async function DashboardPage() {
-  const profileRes = await getUserProfile();
+interface IDashboardPageProps {
+  searchParams: Promise<{
+    page?: string;
+    limit?: string;
+    status?: string;
+    searchTerm?: string;
+  }>;
+}
+
+export default async function DashboardPage(props: IDashboardPageProps) {
+  const [profileRes, searchParams] = await Promise.all([
+    getUserProfile(),
+    props.searchParams,
+  ]);
   const user = profileRes.data;
 
-  // Student Dashboard
+  // Student Dashboard View
   if (user?.role === "STUDENT") {
     const [submissions, stats] = await Promise.all([
       getMySubmissions(),
@@ -19,7 +35,6 @@ export default async function DashboardPage() {
 
     return (
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header Bar */}
         <div className="border-b border-slate-200/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -37,20 +52,16 @@ export default async function DashboardPage() {
           <SubmissionFormDialog />
         </div>
 
-        {/* 4 Personal Metric Cards */}
         <StudentStatsCards stats={stats} />
 
-        {/* Personal Submissions Table */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-heading text-sm font-bold text-slate-900 tracking-tight">
-                My Submitted Projects
-              </h2>
-              <p className="text-[11px] text-slate-500 font-body">
-                Real-time review status and evaluation feedback notes
-              </p>
-            </div>
+          <div>
+            <h2 className="font-heading text-sm font-bold text-slate-900 tracking-tight">
+              My Submitted Projects
+            </h2>
+            <p className="text-[11px] text-slate-500 font-body">
+              Real-time review status and evaluation feedback notes
+            </p>
           </div>
           <StudentSubmissionsTable submissions={submissions} />
         </div>
@@ -58,34 +69,50 @@ export default async function DashboardPage() {
     );
   }
 
-  // Mentor & Admin Initial View (Ready for Feature 4 Review Table)
+  // Mentor & Administrator Review Workspace
+  const [projectData, stats] = await Promise.all([
+    getProjects(searchParams),
+    getProjectStats(),
+  ]);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="border-b border-slate-200/80 pb-4">
-        <div className="flex items-center gap-2">
-          <span className="p-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
-            <Shield01Icon className="w-4 h-4" />
-          </span>
-          <h1 className="font-heading text-xl font-bold text-slate-900 tracking-tight">
-            Mentor Evaluation Console
-          </h1>
+      <div className="border-b border-slate-200/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+              <Shield01Icon className="w-4 h-4" />
+            </span>
+            <h1 className="font-heading text-xl font-bold text-slate-900 tracking-tight">
+              Project Evaluation Console
+            </h1>
+          </div>
+          <p className="text-xs text-slate-500 mt-1 font-body">
+            Examine submitted repositories, inspect candidate demos, and log structured reviews.
+          </p>
         </div>
-        <p className="text-xs text-slate-500 mt-1 font-body">
-          Welcome back, {user?.name || "Reviewer"}. Prepare for project evaluation queue grading.
-        </p>
+
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200 text-xs font-heading font-semibold">
+            Role: <span className="font-mono uppercase">{user?.role || "MENTOR"}</span>
+          </span>
+        </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200/90 bg-white p-6 shadow-2xs">
-        <h3 className="font-heading text-sm font-bold text-slate-900 mb-1">
-          Review Queue Workspace
-        </h3>
-        <p className="text-xs text-slate-500 font-body leading-relaxed mb-4">
-          The project submission and anti-spam portal is active. Mentors and Administrators will use the Review Queue to evaluate candidate submissions, filter by approval status, and submit structured feedback.
-        </p>
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 text-xs font-heading font-semibold">
-          <span>Active Role:</span>
-          <span className="font-mono uppercase">{user?.role || "ADMIN"}</span>
+      {/* 5 Aggregated Metric Cards */}
+      <ProjectStatsCards stats={stats} />
+
+      {/* Paginated Review Data Table */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="font-heading text-sm font-bold text-slate-900 tracking-tight">
+            Evaluation Queue
+          </h2>
+          <p className="text-[11px] text-slate-500 font-body">
+            Search candidates by title or email and filter by submission status
+          </p>
         </div>
+        <MentorReviewTable data={projectData} />
       </div>
     </div>
   );
