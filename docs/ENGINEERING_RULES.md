@@ -123,7 +123,18 @@ Avoid all stereotypical "AI-generated" visual elements (purple-to-blue gradients
 
 ---
 
-## 8. Execution Phasing Protocol
+---
+
+## 9. Zero Dead Code & Unused Feature Pruning Protocol
+
+- **Mandatory Dead Code Elimination**: No unused models, dead utility files, obsolete endpoints, or zombie functions are permitted in the codebase.
+- **Pre-Removal Analysis Rule**: Before deleting any code, trace all imports, callers, and dependencies to verify that it is 100% unused and does not break active UI components or server actions.
+- **Prune Boilerplate Artifacts**:
+  - Remove unused service functions (e.g., legacy orgetPassword, esetPassword) that belong to superseded features.
+  - Remove dead UI components, unused CSS classes, or orphaned helper utilities.
+- **Cleanliness Standard**: Never leave dead code "for later" or commented-out legacy blocks. An engineered codebase must be lean, intentional, and immediately understandable to any reviewer.
+
+## 10. Execution Phasing Protocol
 
 - Code must be implemented **one feature at a time**.
 - Before proceeding to the next feature:

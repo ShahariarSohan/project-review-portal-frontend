@@ -1,106 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
+import Link from "next/link";
 import {
   Shield01Icon,
   Mail01Icon,
   LockPasswordIcon,
   ViewIcon,
   ViewOffIcon,
+  UserCheck01Icon,
+  UserEdit01Icon,
+  GraduationScrollIcon,
 } from "hugeicons-react";
-import { loginUser } from "@/services/auth/auth";
+import loginUser from "@/services/auth/loginUser";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import InputFieldError from "@/components/shared/InputFieldError";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(loginUser, null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const res = await loginUser({ email, password });
-      if (res.success) {
-        router.push("/dashboard");
-      } else {
-        setError(res.message || "Invalid credentials.");
-      }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    } finally {
-      setIsLoading(false);
-    }
+  const fillDemoCredentials = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
   };
 
   return (
     <div className="min-h-screen bg-slate-100/70 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-teal-800 text-teal-100 flex items-center justify-center mb-4 shadow-sm border border-teal-700">
+        {/* Brand Header */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-12 h-12 rounded-xl bg-teal-800 text-teal-100 flex items-center justify-center mb-3 shadow-sm border border-teal-700">
             <Shield01Icon className="w-6 h-6 stroke-[2]" />
           </div>
           <h1 className="font-heading text-2xl font-bold text-slate-900 tracking-tight">
             Project Review Portal
           </h1>
-          <p className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider">
-            Mentor Evaluation & Student Submission Console
+          <p className="text-xs font-medium text-slate-500 mt-1 uppercase tracking-wider font-body">
+            Evaluation Console & Submission Portal
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-xs border border-slate-200 p-8">
-          <form onSubmit={handleLogin} className="space-y-5">
-            {error && (
-              <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-200">
-                {error}
+        {/* Quick Demo Credentials Bar for Evaluators */}
+        <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-3.5 mb-4">
+          <p className="text-[10px] font-heading font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Quick One-Click Demo Credentials
+          </p>
+          <div className="grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials("admin@reviewportal.com", "Admin123")}
+              className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-teal-50 hover:border-teal-300 text-slate-700 hover:text-teal-900 text-[11px] font-medium transition-colors cursor-pointer"
+            >
+              <UserCheck01Icon className="w-3.5 h-3.5 text-teal-700" />
+              <span>Admin</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials("mentor@reviewportal.com", "Mentor123")}
+              className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-teal-50 hover:border-teal-300 text-slate-700 hover:text-teal-900 text-[11px] font-medium transition-colors cursor-pointer"
+            >
+              <UserEdit01Icon className="w-3.5 h-3.5 text-teal-700" />
+              <span>Mentor</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials("student@reviewportal.com", "Student123")}
+              className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-teal-50 hover:border-teal-300 text-slate-700 hover:text-teal-900 text-[11px] font-medium transition-colors cursor-pointer"
+            >
+              <GraduationScrollIcon className="w-3.5 h-3.5 text-teal-700" />
+              <span>Student</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Main Login Card */}
+        <div className="bg-white rounded-xl shadow-2xs border border-slate-200/90 p-7">
+          <form action={formAction} className="space-y-4">
+            {state?.message && !state?.success && (
+              <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-200 font-body">
+                {state.message}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 font-heading">
+              <Label htmlFor="email" className="block text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Email Address
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Mail01Icon className="w-4 h-4" />
                 </div>
-                <input
+                <Input
+                  id="email"
+                  name="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all"
-                  placeholder="admin@reviewportal.com"
+                  className="pl-9 h-10 text-xs"
+                  placeholder="name@reviewportal.com"
                   required
                 />
               </div>
+              <InputFieldError field="email" state={state} />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 font-heading">
+              <Label htmlFor="password" className="block text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Password
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <LockPasswordIcon className="w-4 h-4" />
                 </div>
-                <input
+                <Input
+                  id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all font-mono"
-                  placeholder="Password"
+                  className="pl-9 pr-10 h-10 text-xs font-mono"
+                  placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
                 >
                   {showPassword ? (
                     <ViewOffIcon className="w-4 h-4" />
@@ -109,19 +140,33 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
+              <InputFieldError field="password" state={state} />
             </div>
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-teal-800 hover:bg-teal-900 text-white font-heading font-semibold text-sm py-2.5 rounded-lg transition-colors cursor-pointer"
+              disabled={isPending}
+              className="w-full bg-teal-800 hover:bg-teal-900 text-white font-heading font-semibold text-xs h-10 rounded-lg transition-colors cursor-pointer"
             >
-              {isLoading ? "Signing in..." : "Sign In to Console"}
+              {isPending ? "Signing in..." : "Sign In to Portal"}
             </Button>
           </form>
+
+          {/* Registration Navigation */}
+          <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-500 font-body">
+              Need a student account?{" "}
+              <Link
+                href="/signup"
+                className="font-semibold text-teal-800 hover:text-teal-900 underline underline-offset-2"
+              >
+                Create Student Account
+              </Link>
+            </p>
+          </div>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-8 font-mono">
+        <p className="text-center text-[11px] text-slate-400 mt-6 font-mono">
           Project Review Portal
         </p>
       </div>

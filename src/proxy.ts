@@ -5,12 +5,11 @@ export function proxy(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const { pathname } = request.nextUrl;
 
-
   if (pathname.startsWith("/dashboard") && !accessToken) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (pathname === "/" && accessToken) {
+  if ((pathname === "/" || pathname === "/signup") && accessToken) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -18,5 +17,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/"],
+  matcher: ["/dashboard/:path*", "/", "/signup"],
 };

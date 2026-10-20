@@ -60,34 +60,6 @@ export const getUserProfile = async () => {
   }
 };
 
-export const forgetPassword = async (payload: any) => {
-  try {
-    const res = await fetch(`${baseUrl}/auth/forget-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    return { success: data.success, message: data.message, data: data.data };
-  } catch (err: any) {
-    return { success: false, message: err.message || "Forget password request failed" };
-  }
-};
-
-export const resetPassword = async (payload: any) => {
-  try {
-    const res = await fetch(`${baseUrl}/auth/reset-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    return { success: data.success, message: data.message, data: data.data };
-  } catch (err: any) {
-    return { success: false, message: err.message || "Reset password failed" };
-  }
-};
-
 export const changePassword = async (payload: any) => {
   try {
     const res = await serverFetch.post("/auth/change-password", {

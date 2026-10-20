@@ -133,7 +133,7 @@ To ensure evaluators can grade the project in seconds without manual friction:
     - `liveUrl`: optional valid URL
     - `description`: string (min 20, max 3000)
 - **Server Actions** in `src/services/project/`:
-  - `submitProject.ts`: Server action validating form with `zodValidator`, sending `POST /api/v1/projects` via `serverFetch`. Catches HTTP 409 (duplicate) and HTTP 429 (rate limit) and maps them to user-friendly messages.
+  - `submitProject.ts`: Server action validating form with `zodValidator`, sending `POST /api/v1/projects` via `serverFetch`. Catches HTTP 409 (duplicate) and HTTP 429 (rate limit with retryAfterSeconds), mapping them to a dedicated non-destructive countdown alert banner.
   - `getMySubmissions.ts`: Server fetcher calling `GET /api/v1/projects/my-submissions`.
   - `getMyStats.ts`: Server fetcher calling `GET /api/v1/projects/my-stats`.
 - **Components & Views**:
