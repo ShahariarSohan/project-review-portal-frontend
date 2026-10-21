@@ -32,15 +32,15 @@ export default async function DashboardPage(props: IDashboardPageProps) {
 
   // Student Dashboard Orchestration
   if (user?.role === "STUDENT") {
-    const [submissions, stats] = await Promise.all([
-      getMySubmissions(),
+    const [submissionData, stats] = await Promise.all([
+      getMySubmissions(searchParams),
       getMyStats(),
     ]);
 
     return (
       <StudentDashboardView
         user={user}
-        submissions={submissions}
+        data={submissionData}
         stats={stats}
         isRestricted={isRestricted}
       />

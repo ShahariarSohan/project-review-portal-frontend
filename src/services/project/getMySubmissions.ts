@@ -19,17 +19,66 @@ export interface IProjectSubmissionItem {
   } | null;
 }
 
-export const getMySubmissions = async (): Promise<IProjectSubmissionItem[]> => {
+export interface IProjectSubmissionListResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: IProjectSubmissionItem[];
+}
+
+export interface IGetMySubmissionsParams {
+  page?: string | number;
+  limit?: string | number;
+  status?: string;
+  searchTerm?: string;
+}
+
+export const getMySubmissions = async (
+  params?: IGetMySubmissionsParams
+): Promise<IProjectSubmissionListResponse> => {
   try {
-    const res = await serverFetch.get("/projects/my-submissions");
-    const result = await res.json();
-    if (result.success && Array.isArray(result.data)) {
-      return result.data;
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.status && params.status !== "ALL") {
+      query.set("status", params.status);
     }
-    return [];
+    if (params?.searchTerm && params.searchTerm.trim()) {
+      query.set("searchTerm", params.searchTerm.trim());
+    }
+
+    const queryString = query.toString();
+    const endpoint = `/projects/my-submissions${queryString ? `?${queryString}` : ""}`;
+
+    const res = await serverFetch.get(endpoint);
+    const result = await res.json();
+
+    if (result.success && Array.isArray(result.data)) {
+      return {
+        meta: result.meta || {
+          page: Number(params?.page) || 1,
+          limit: Number(params?.limit) || 10,
+          total: result.data.length,
+          totalPages:
+            Math.ceil(result.data.length / (Number(params?.limit) || 10)) || 1,
+        },
+        data: result.data,
+      };
+    }
+
+    return {
+      meta: { page: 1, limit: 10, total: 0, totalPages: 1 },
+      data: [],
+    };
   } catch (err) {
     console.error("Failed to fetch student submissions:", err);
-    return [];
+    return {
+      meta: { page: 1, limit: 10, total: 0, totalPages: 1 },
+      data: [],
+    };
   }
 };
 

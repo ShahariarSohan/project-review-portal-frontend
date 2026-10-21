@@ -4,45 +4,58 @@ import {
   Comment01Icon,
   Calendar03Icon,
 } from "hugeicons-react";
-import { IProjectSubmissionItem } from "@/services/project/getMySubmissions";
+import { IProjectSubmissionListResponse } from "@/services/project/getMySubmissions";
 import StatusBadge from "@/components/shared/StatusBadge";
 import EmptyState from "@/components/shared/EmptyState";
+import TablePagination from "@/components/shared/TablePagination";
+import SearchFilter from "@/components/shared/SearchFilter";
+import SelectFilter from "@/components/shared/SelectFilter";
 import SubmissionFormDialog from "./SubmissionFormDialog";
 import ProjectDetailsDialog from "./ProjectDetailsDialog";
 
 interface IStudentSubmissionsTableProps {
-  submissions: IProjectSubmissionItem[];
+  data: IProjectSubmissionListResponse;
   isRestricted?: boolean;
 }
 
 export default function StudentSubmissionsTable({
-  submissions,
+  data,
   isRestricted,
 }: IStudentSubmissionsTableProps) {
-  if (submissions.length === 0) {
-    return (
-      <EmptyState
-        title="No Project Submissions Yet"
-        description="You have not submitted any projects for evaluation. Submit your GitHub repository details to begin the review process."
-        action={<SubmissionFormDialog isRestricted={isRestricted} />}
-      />
-    );
-  }
+  const { data: submissions, meta } = data;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200/90 bg-white shadow-2xs">
-      <table className="w-full text-left text-xs">
-        <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-heading font-semibold uppercase tracking-wider text-[10px]">
-          <tr>
-            <th className="py-3 px-4">Project Details</th>
-            <th className="py-3 px-4">Repository & Live</th>
-            <th className="py-3 px-4">Submitted</th>
-            <th className="py-3 px-4">Status</th>
-            <th className="py-3 px-4">Mentor Feedback</th>
-            <th className="py-3 px-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 font-body">
+    <div className="space-y-4">
+      {/* Filter Toolbar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+        <SearchFilter />
+        <SelectFilter />
+      </div>
+
+      {/* Main Table Container */}
+      <div className="rounded-xl border border-slate-200/90 bg-white shadow-2xs overflow-hidden">
+        {submissions.length === 0 ? (
+          <div className="py-12">
+            <EmptyState
+              title="No Project Submissions Found"
+              description="No submissions match your query. Submit your GitHub repository details to begin the review process or adjust search filters."
+              action={<SubmissionFormDialog isRestricted={isRestricted} />}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-heading font-semibold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-4">Project Details</th>
+                  <th className="py-3 px-4">Repository & Live</th>
+                  <th className="py-3 px-4">Submitted</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Mentor Feedback</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-body">
           {submissions.map((item) => (
             <tr
               key={item.id}
@@ -136,5 +149,15 @@ export default function StudentSubmissionsTable({
         </tbody>
       </table>
     </div>
-  );
+  )}
+
+  {/* Table Pagination Controls */}
+  <TablePagination
+    currentPage={meta.page}
+    totalPages={meta.totalPages}
+    totalItems={meta.total}
+  />
+</div>
+</div>
+);
 }

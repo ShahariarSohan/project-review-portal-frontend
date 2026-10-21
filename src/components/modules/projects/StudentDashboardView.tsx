@@ -3,7 +3,7 @@ import SubmissionFormDialog from "@/components/modules/projects/SubmissionFormDi
 import StudentSubmissionsTable from "@/components/modules/projects/StudentSubmissionsTable";
 import StudentStatsCards from "@/components/modules/projects/StudentStatsCards";
 import AccountRestrictionBanner from "@/components/shared/AccountRestrictionBanner";
-import { IProjectSubmissionItem } from "@/services/project/getMySubmissions";
+import { IProjectSubmissionListResponse } from "@/services/project/getMySubmissions";
 import { IStudentStats } from "@/services/project/getMyStats";
 
 interface IUser {
@@ -16,14 +16,14 @@ interface IUser {
 
 interface IStudentDashboardViewProps {
   user: IUser;
-  submissions: IProjectSubmissionItem[];
+  data: IProjectSubmissionListResponse;
   stats: IStudentStats;
   isRestricted: boolean;
 }
 
 export default function StudentDashboardView({
   user,
-  submissions,
+  data,
   stats,
   isRestricted,
 }: IStudentDashboardViewProps) {
@@ -64,7 +64,7 @@ export default function StudentDashboardView({
           </p>
         </div>
         <StudentSubmissionsTable
-          submissions={submissions}
+          data={data}
           isRestricted={isRestricted}
         />
       </div>

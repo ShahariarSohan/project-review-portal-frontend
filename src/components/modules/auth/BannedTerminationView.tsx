@@ -9,7 +9,6 @@ import {
   UserCheck01Icon,
 } from "hugeicons-react";
 import { logoutUser } from "@/services/auth/auth";
-import toast from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 
 interface IBannedTerminationViewProps {
@@ -32,7 +31,6 @@ export default function BannedTerminationView({
     setIsLoggingOut(true);
     try {
       await logoutUser();
-      toast.success("Logged out successfully!");
       router.push("/");
     } catch {
       router.push("/");
