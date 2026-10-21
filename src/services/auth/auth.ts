@@ -112,6 +112,14 @@ export const changePassword = async (payload: {
       body: JSON.stringify(payload),
     });
     const data = await res.json();
+    if (!res.ok || !data.success) {
+      const errorMsg =
+        data?.error?.[0]?.message ||
+        (Array.isArray(data?.error) ? data.error.map((e: any) => e.message).join(", ") : null) ||
+        data?.message ||
+        "Change password failed";
+      return { success: false, message: errorMsg };
+    }
     return { success: data.success, message: data.message, data: data.data };
   } catch (err: any) {
     return { success: false, message: err.message || "Change password failed" };

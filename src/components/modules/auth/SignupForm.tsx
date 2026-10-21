@@ -150,7 +150,9 @@ export default function SignupForm() {
                   if (clientError) setClientError(null);
                 }}
                 className="pl-9 pr-10 h-10 text-xs font-mono"
-                placeholder="At least 6 characters"
+                placeholder="8 to 15 characters"
+                minLength={8}
+                maxLength={15}
                 required
               />
               <button
@@ -191,6 +193,8 @@ export default function SignupForm() {
                 }}
                 className="pl-9 pr-10 h-10 text-xs font-mono"
                 placeholder="Re-enter password"
+                minLength={8}
+                maxLength={15}
                 required
               />
               <button

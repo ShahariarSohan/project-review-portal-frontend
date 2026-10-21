@@ -135,8 +135,10 @@ export default function AddMentorDialog() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 6 characters"
+                placeholder="8 to 15 characters"
                 className="pl-9 pr-9 h-9 text-xs"
+                minLength={8}
+                maxLength={15}
                 required
               />
               <button

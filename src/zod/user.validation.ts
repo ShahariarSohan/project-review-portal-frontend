@@ -13,7 +13,8 @@ export const createMentorSchema = z.object({
     .email("Please provide a valid email address"),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters"),
+    .min(8, "Password must be at least 8 characters")
+    .max(15, "Password cannot exceed 15 characters"),
 });
 
 export const updateUserStatusSchema = z.object({
