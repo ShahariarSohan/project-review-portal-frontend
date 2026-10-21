@@ -29,6 +29,9 @@ import InputFieldError from "@/components/shared/InputFieldError";
 export default function AddMentorDialog() {
   const [open, setOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [state, formAction, isPending] = useActionState<
     IInputErrorState | null,
     FormData
@@ -36,6 +39,9 @@ export default function AddMentorDialog() {
 
   useEffect(() => {
     if (state?.success) {
+      setName("");
+      setEmail("");
+      setPassword("");
       const timer = setTimeout(() => {
         setOpen(false);
       }, 1200);
@@ -85,6 +91,8 @@ export default function AddMentorDialog() {
               <Input
                 id="mentor-name"
                 name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Dr. Jane Smith"
                 className="pl-9 h-9 text-xs"
                 required
@@ -104,6 +112,8 @@ export default function AddMentorDialog() {
                 id="mentor-email"
                 name="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="mentor@reviewportal.com"
                 className="pl-9 h-9 text-xs"
                 required
@@ -123,6 +133,8 @@ export default function AddMentorDialog() {
                 id="mentor-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
                 className="pl-9 pr-9 h-9 text-xs"
                 required

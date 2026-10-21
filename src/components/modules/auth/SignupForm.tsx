@@ -18,8 +18,38 @@ import InputFieldError from "@/components/shared/InputFieldError";
 
 export default function SignupForm() {
   const [state, formAction, isPending] = useActionState(signupStudent, null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  // Filter out confirmPassword error if the user has updated the field to match password
+  const effectiveState = {
+    ...state,
+    errors: state?.errors?.filter((err) => {
+      if (
+        err.field === "confirmPassword" &&
+        confirmPassword &&
+        password &&
+        confirmPassword === password
+      ) {
+        return false;
+      }
+      return true;
+    }),
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      setClientError("Passwords do not match");
+      return;
+    }
+    setClientError(null);
+  };
 
   return (
     <div>
@@ -38,7 +68,11 @@ export default function SignupForm() {
 
       {/* Main Card */}
       <div className="bg-white rounded-xl shadow-2xs border border-slate-200/90 p-7">
-        <form action={formAction} className="space-y-4">
+        <form
+          action={formAction}
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           {state?.message && !state?.success && (
             <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold border border-rose-200 font-body">
               {state.message}
@@ -60,12 +94,14 @@ export default function SignupForm() {
                 id="name"
                 name="name"
                 type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="pl-9 h-10 text-xs"
                 placeholder="e.g. Alex Hunter"
                 required
               />
             </div>
-            <InputFieldError field="name" state={state} />
+            <InputFieldError field="name" state={effectiveState} />
           </div>
 
           <div>
@@ -83,12 +119,14 @@ export default function SignupForm() {
                 id="email"
                 name="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="pl-9 h-10 text-xs"
                 placeholder="student@university.edu"
                 required
               />
             </div>
-            <InputFieldError field="email" state={state} />
+            <InputFieldError field="email" state={effectiveState} />
           </div>
 
           <div>
@@ -106,6 +144,11 @@ export default function SignupForm() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (clientError) setClientError(null);
+                }}
                 className="pl-9 pr-10 h-10 text-xs font-mono"
                 placeholder="At least 6 characters"
                 required
@@ -123,7 +166,7 @@ export default function SignupForm() {
                 )}
               </button>
             </div>
-            <InputFieldError field="password" state={state} />
+            <InputFieldError field="password" state={effectiveState} />
           </div>
 
           <div>
@@ -141,6 +184,11 @@ export default function SignupForm() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (clientError) setClientError(null);
+                }}
                 className="pl-9 pr-10 h-10 text-xs font-mono"
                 placeholder="Re-enter password"
                 required
@@ -162,7 +210,14 @@ export default function SignupForm() {
                 )}
               </button>
             </div>
-            <InputFieldError field="confirmPassword" state={state} />
+            <InputFieldError
+              field="confirmPassword"
+              state={
+                clientError
+                  ? { errors: [{ field: "confirmPassword", message: clientError }] }
+                  : effectiveState
+              }
+            />
           </div>
 
           <Button

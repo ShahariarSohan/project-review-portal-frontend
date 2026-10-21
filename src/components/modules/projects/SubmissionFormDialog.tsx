@@ -40,10 +40,18 @@ export default function SubmissionFormDialog({
   >(submitProject, null);
 
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [title, setTitle] = useState("");
+  const [repoUrl, setRepoUrl] = useState("");
+  const [liveUrl, setLiveUrl] = useState("");
+  const [description, setDescription] = useState("");
 
-  // Auto-close on success
+  // Auto-close and clear on success
   useEffect(() => {
     if (state?.success) {
+      setTitle("");
+      setRepoUrl("");
+      setLiveUrl("");
+      setDescription("");
       const timer = setTimeout(() => {
         setOpen(false);
       }, 1200);
@@ -144,6 +152,8 @@ export default function SubmissionFormDialog({
             <Input
               id="title"
               name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Distributed Task Orchestrator"
               required
               minLength={3}
@@ -164,6 +174,8 @@ export default function SubmissionFormDialog({
                 id="repoUrl"
                 name="repoUrl"
                 type="url"
+                value={repoUrl}
+                onChange={(e) => setRepoUrl(e.target.value)}
                 className="pl-9 font-mono"
                 placeholder="https://github.com/username/project-repo"
                 required
@@ -184,6 +196,8 @@ export default function SubmissionFormDialog({
                 id="liveUrl"
                 name="liveUrl"
                 type="url"
+                value={liveUrl}
+                onChange={(e) => setLiveUrl(e.target.value)}
                 className="pl-9 font-mono"
                 placeholder="https://project-demo.vercel.app"
                 required
@@ -200,6 +214,8 @@ export default function SubmissionFormDialog({
               id="description"
               name="description"
               rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               required
               minLength={20}
               maxLength={3000}
