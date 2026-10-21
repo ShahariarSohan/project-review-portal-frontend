@@ -1,6 +1,14 @@
 # Project Review Portal - Frontend Web Client
 
-A web client for an academic and technical project submission and review platform, built with Next.js 16 (App Router), React 19, and TailwindCSS v4. The application delivers role-adaptive interfaces for Students, Mentors, and Administrators, featuring server-driven data tables, instant evaluation demo logins, project intake forms, one-time review grading, and an executive analytics console.
+A web client for an academic and technical project submission and review platform, built with Next.js 16 (App Router), React 19, ShadCN UI, Recharts, and TailwindCSS v4. The application delivers role-adaptive interfaces for Students, Mentors, and Administrators, featuring server-driven data tables, instant evaluation demo logins, strict multi-field duplicate detection handling, one-time review grading, and an executive analytics console.
+
+---
+
+## Live Deployments
+
+- **Production Web Client**: https://project-review-portal-frontend.vercel.app
+- **Production API URL**: https://project-review-portal-backend.vercel.app/api/v1
+- **API Health Check**: https://project-review-portal-backend.vercel.app/
 
 ---
 
@@ -16,15 +24,60 @@ The client is designed with an obsidian and deep charcoal aesthetic, clean typog
 
 ---
 
+## Strict Validation and Error Handling Architecture
+
+The frontend implements client-side and server-side safeguards matching the backend's strict domain policies:
+
+### 1. Strict Form Validation (Zod Schema)
+
+Located in `src/zod/project.validation.ts`, the `createProjectSchema` validates input before submission:
+
+- **Project Title (`title`)**: Trimmed string, min 3 characters, max 100 characters.
+- **GitHub Repository URL (`repoUrl`)**: Trimmed string, valid URL format strictly matching `/^https:\/\/(www\.)?github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/`.
+- **Live Demo URL (`liveUrl`)**: **Mandatory**, trimmed string, valid URL strictly matching `/^https:\/\/.+/` (must use secure `https://` protocol).
+- **Technical Description (`description`)**: Trimmed string, min 20 characters, max 3000 characters.
+
+Inline error messages are extracted via `zodValidator` and rendered directly beneath individual fields using the reusable `<InputFieldError />` component.
+
+### 2. Strict Multi-Field Duplicate Conflict Handling (HTTP 409)
+
+- When a student attempts to submit a project with a `title`, `repoUrl`, or `liveUrl` that is already registered under an active (`PENDING` or `APPROVED`) submission, the backend responds with `HTTP 409 Conflict`.
+- `submitProject.ts` catches the 409 response and sets `isDuplicate: true` in the action state.
+- `SubmissionFormDialog.tsx` displays a dedicated non-destructive conflict banner detailing the exact conflicting attributes (e.g. `"You already have an active or approved submission with this project title and repository URL. Duplicate submissions are not allowed."`).
+- The modal remains open, preserving the student's entered text so they can modify the conflicting fields without retyping.
+
+### 3. Anti-Spam Rate Limiting with Real-Time Countdown (HTTP 429)
+
+- If a student exceeds the submission limit (maximum 3 submissions per 2 minutes), the backend returns `HTTP 429 Too Many Requests` containing `retryAfterSeconds`.
+- `submitProject.ts` flags `isRateLimited: true` and forwards the cooldown duration.
+- `SubmissionFormDialog.tsx` activates an animated interval that counts down second-by-second in real time:
+  ```
+  Submission limit reached (maximum 3 projects per 2 minutes).
+  Cooldown resets in: 48s
+  ```
+- Submissions are safely blocked until the cooldown expires.
+
+### 4. One-Time Review Immutability in the UI
+
+- In the Mentor and Admin review views (`/dashboard` and `/dashboard/reviews`), the "Review" action button is only rendered for submissions in `PENDING` status.
+- Once evaluated as `APPROVED` or `REJECTED`, the review dialog is locked and the item transitions to a read-only "View" action button opening `ProjectDetailsDialog`.
+- If an unauthorized re-review request is sent, the backend returns `HTTP 400 Bad Request`, which displays an immutable decision alert.
+
+### 5. Account Suspension and Banning UX Enforcement
+
+- **Suspended Accounts**: Users log in normally but see a persistent, non-dismissible `AccountRestrictionBanner` at the top of the screen. In the Student view, the "Submit Project" button is replaced with a disabled `Submissions Restricted` state. In the Mentor view, review triggers are disabled.
+- **Banned Accounts**: The Next.js edge proxy (`src/proxy.ts`) intercepts any request from a banned session and redirects immediately to `/banned`, preventing any dashboard data from rendering.
+
+---
+
 ## Role-Adaptive Interface Architecture
 
 The frontend automatically detects the authenticated user's role and renders a tailored interface:
 
 ### 1. Student Submission Portal
 - **Dashboard Overview**: Displays personal submission metrics (Total Submissions, Pending Queue, Approved, Rejected).
-- **Project Submission Dialog**: Accessible modal for submitting project titles, GitHub repository URLs, live demo URLs, and technical descriptions.
-- **Form Safeguards**: Client-side and server-side Zod validation, double-click prevention during pending state, and friendly alerts for duplicate repositories or rate-limit throttle windows.
-- **Submissions List**: Interactive history showing submission dates, reference IDs, external links to code and live deployments, current status badges, and mentor review notes.
+- **Project Submission Dialog**: Accessible modal with strict GitHub URL validation, mandatory secure live demo URL, duplicate conflict banners, and cooldown timers.
+- **Submissions List**: Interactive history showing submission dates, reference IDs, external links to repository and live deployment, current status badges, and mentor review notes.
 
 ### 2. Mentor Review Dashboard
 - **Review Queue Table**: Server-rendered data table listing all student submissions across the institution.
@@ -47,9 +100,6 @@ The frontend automatically detects the authenticated user's role and renders a t
 ### 4. Common Account and Settings Features
 - **Profile Identity Card**: View display name, verified email (with one-click copy), assigned role, account status, and registration date.
 - **Self-Service Password Updates**: Secure change password form with visibility toggles and matching verification.
-- **Account Restriction UX**:
-  - Suspended accounts receive a prominent banner notification explaining read-only limitations, and mutation buttons are disabled.
-  - Banned accounts are intercepted at the route proxy and redirected to a dedicated `/banned` termination screen.
 
 ---
 
@@ -154,7 +204,7 @@ Before running the web client, ensure you have:
 
 1. **Node.js**: v18.18.0 or higher (v20+ recommended)
 2. **npm**: v9.0.0 or higher
-3. **Backend API**: The `project-review-portal-backend` service running (by default on `http://localhost:5000`)
+3. **Backend API**: The `project-review-portal-backend` service running (locally on `http://localhost:5000` or via production deployment)
 
 ---
 
@@ -170,7 +220,7 @@ Configure the backend API URL:
 
 | Variable | Required | Default Value | Description |
 |---|:---:|---|---|
-| `NEXT_PUBLIC_API_URL` | Yes | `http://localhost:5000/api/v1` | Base URL pointing to the running backend REST API |
+| `NEXT_PUBLIC_API_URL` | Yes | `http://localhost:5000/api/v1` | Base URL pointing to the backend REST API (use production URL for hosted environments) |
 
 ---
 
@@ -232,15 +282,6 @@ Data tables avoid client-side `useEffect` data fetching. Instead, Server Compone
 - `searchTerm`: Query string searching project titles, student names, and emails
 
 Components like `TablePagination`, `SelectFilter`, and `SearchFilter` update parameters using `useTransition()` and `router.push()`, allowing Next.js to stream freshly filtered data from the server.
-
-### 3. One-Time Review Finality
-When a mentor evaluates a submission via the Review modal:
-- Once approved or rejected, the review decision is finalized on the server.
-- The UI immediately disables further review triggers for that item and replaces the action with a read-only "View" details button.
-
-### 4. Account Restrictions and Banning Logic
-- **Suspended Users**: Upon login, suspended users see a non-dismissible `AccountRestrictionBanner`. Action triggers (submitting new projects or submitting reviews) are disabled with a visual restricted indicator.
-- **Banned Users**: Users marked as `BANNED` are immediately intercepted by `proxy.ts` and redirected to `/banned`, blocking access to all dashboard layouts and data.
 
 ---
 
