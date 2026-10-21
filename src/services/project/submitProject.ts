@@ -75,6 +75,7 @@ export const submitProject = async (
     }
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/reviews");
     return {
       success: true,
       message: "Project submitted successfully for mentor review!",

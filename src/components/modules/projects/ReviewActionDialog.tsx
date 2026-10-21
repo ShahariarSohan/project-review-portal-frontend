@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "@/lib/toast";
 import {
@@ -36,25 +36,45 @@ export default function ReviewActionDialog({
 }: IReviewActionDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [state, setState] = useState<IReviewProjectState | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<"APPROVED" | "REJECTED">(
     project.status === "REJECTED" ? "REJECTED" : "APPROVED"
   );
+  const [reviewNotes, setReviewNotes] = useState(project.reviewNotes || "");
 
-  const boundAction = reviewProject.bind(null, project.id);
-  const [state, formAction, isPending] = useActionState<IReviewProjectState | null, FormData>(
-    boundAction,
-    null
-  );
-
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("Review submitted successfully!");
-      setOpen(false);
-      router.refresh();
-    } else if (state?.message && !state?.success) {
-      toast.error(state.message);
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
+      setSelectedStatus(project.status === "REJECTED" ? "REJECTED" : "APPROVED");
+      setReviewNotes(project.reviewNotes || "");
+      setState(null);
     }
-  }, [state, router]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPending(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const res = await reviewProject(project.id, null, formData);
+      setState(res);
+
+      if (res?.success) {
+        toast.success(res.message || "Review submitted successfully!");
+        setOpen(false);
+        router.refresh();
+      } else {
+        toast.error(res?.message || "Failed to submit evaluation review.");
+      }
+    } catch (err: any) {
+      console.error("Review submission error:", err);
+      toast.error(err?.message || "An unexpected error occurred while submitting review.");
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   if (isRestricted) {
     return (
@@ -71,7 +91,7 @@ export default function ReviewActionDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           size="sm"
@@ -140,7 +160,7 @@ export default function ReviewActionDialog({
           </div>
         )}
 
-        <form action={formAction} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="status" value={selectedStatus} />
           <div>
             <Label className="mb-2 block text-[11px]">Evaluation Decision</Label>
@@ -181,7 +201,8 @@ export default function ReviewActionDialog({
               id="reviewNotes"
               name="reviewNotes"
               rows={4}
-              defaultValue={project.reviewNotes || ""}
+              value={reviewNotes}
+              onChange={(e) => setReviewNotes(e.target.value)}
               placeholder="Detail reasons for approval/rejection, observations, and recommendations..."
               className="flex w-full rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-900 shadow-2xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-700/30 focus:border-teal-700 font-body"
               maxLength={2000}

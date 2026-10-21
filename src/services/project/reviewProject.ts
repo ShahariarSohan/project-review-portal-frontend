@@ -13,12 +13,25 @@ export interface IReviewProjectState {
 
 export const reviewProject = async (
   projectId: string,
-  _prevState: IReviewProjectState | null,
-  formData: FormData
+  prevStateOrFormData?: IReviewProjectState | null | FormData,
+  formData?: FormData
 ): Promise<IReviewProjectState> => {
+  const actualFormData = (formData instanceof FormData
+    ? formData
+    : prevStateOrFormData instanceof FormData
+    ? prevStateOrFormData
+    : null) as FormData;
+
+  if (!actualFormData) {
+    return {
+      success: false,
+      message: "Form submission data was missing or invalid.",
+    };
+  }
+
   const rawPayload = {
-    status: formData.get("status") as string,
-    reviewNotes: (formData.get("reviewNotes") as string) || undefined,
+    status: actualFormData.get("status") as string,
+    reviewNotes: (actualFormData.get("reviewNotes") as string)?.trim() || undefined,
   };
 
   const validated = zodValidator<ReviewProjectFormData>(rawPayload, reviewProjectSchema);
@@ -49,16 +62,17 @@ export const reviewProject = async (
     }
 
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/reviews");
 
     return {
       success: true,
       message: result.message || "Project evaluation recorded successfully.",
     };
-  } catch (err) {
+  } catch (err: any) {
     console.error("Review project action failed:", err);
     return {
       success: false,
-      message: "Network or server connection failed. Please retry.",
+      message: err?.message || "Network or server connection failed. Please retry.",
     };
   }
 };
