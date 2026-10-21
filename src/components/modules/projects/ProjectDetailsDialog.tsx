@@ -23,8 +23,30 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+export interface IProjectDetailViewData {
+  id: string;
+  title: string;
+  repoUrl: string;
+  liveUrl?: string | null;
+  description: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  reviewNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  student?: {
+    id?: string;
+    name?: string;
+    email?: string;
+  } | null;
+  reviewer?: {
+    id?: string;
+    name?: string;
+    email?: string;
+  } | null;
+}
+
 interface IProjectDetailsDialogProps {
-  project: IProjectItem;
+  project: IProjectDetailViewData;
 }
 
 export default function ProjectDetailsDialog({ project }: IProjectDetailsDialogProps) {
@@ -73,18 +95,20 @@ export default function ProjectDetailsDialog({ project }: IProjectDetailsDialogP
         </DialogHeader>
 
         <div className="space-y-4 pt-2 text-xs font-body">
-          {/* Candidate Profile Details */}
+          {/* Candidate Profile Details (or Submission Metadata) */}
           <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
-                Submitted By
+                {project.student?.name ? "Submitted By" : "Submission ID"}
               </span>
               <p className="font-heading font-bold text-slate-900 text-xs">
-                {project.student.name}
+                {project.student?.name || project.id}
               </p>
-              <p className="font-mono text-[11px] text-slate-500">
-                {project.student.email}
-              </p>
+              {project.student?.email && (
+                <p className="font-mono text-[11px] text-slate-500">
+                  {project.student.email}
+                </p>
+              )}
             </div>
             <div className="text-left sm:text-right">
               <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">

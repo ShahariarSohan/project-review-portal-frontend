@@ -12,7 +12,7 @@ import {
   UserEdit01Icon,
   GraduationScrollIcon,
 } from "hugeicons-react";
-import loginUser from "@/services/auth/loginUser";
+import { loginUser } from "@/services/auth/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

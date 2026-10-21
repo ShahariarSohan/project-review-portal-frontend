@@ -6,6 +6,7 @@ import {
   DashboardSquare01Icon,
   Folder01Icon,
   UserGroupIcon,
+  Analytics01Icon,
   Settings02Icon,
   Logout01Icon,
   Shield01Icon,
@@ -34,7 +35,33 @@ export default function Sidebar({ user }: ISidebarProps) {
   const getMenuItems = () => {
     const role = user?.role;
 
-    // Overview item tailored to role
+    // For Administrators: Executive Analytics is the primary/default dashboard view
+    if (role === "ADMIN") {
+      return [
+        {
+          name: "Analytics",
+          icon: Analytics01Icon,
+          path: "/dashboard/analytics",
+        },
+        {
+          name: "Review Queue",
+          icon: DashboardSquare01Icon,
+          path: "/dashboard/reviews",
+        },
+        {
+          name: "Users",
+          icon: UserGroupIcon,
+          path: "/dashboard/users",
+        },
+        {
+          name: "Settings",
+          icon: Settings02Icon,
+          path: "/dashboard/settings",
+        },
+      ];
+    }
+
+    // Overview item tailored to student and mentor roles
     const items = [
       {
         name: role === "STUDENT" ? "My Submissions" : "Review Queue",
@@ -42,15 +69,6 @@ export default function Sidebar({ user }: ISidebarProps) {
         path: "/dashboard",
       },
     ];
-
-    // Only administrators have access to user management
-    if (role === "ADMIN") {
-      items.push({
-        name: "Users",
-        icon: UserGroupIcon,
-        path: "/dashboard/users",
-      });
-    }
 
     // Settings is accessible to all authenticated users
     items.push({
@@ -66,7 +84,10 @@ export default function Sidebar({ user }: ISidebarProps) {
 
   const isActive = (path: string) => {
     if (path === "/dashboard") {
-      return pathname === "/dashboard";
+      return (
+        pathname === "/dashboard" ||
+        (user?.role === "MENTOR" && pathname === "/dashboard/reviews")
+      );
     }
     return pathname?.startsWith(path);
   };

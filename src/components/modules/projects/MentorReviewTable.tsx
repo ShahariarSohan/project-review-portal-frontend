@@ -137,14 +137,13 @@ export default function MentorReviewTable({
 
                       {/* Actions */}
                       <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end">
-                          {project.status === "PENDING" ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <ProjectDetailsDialog project={project} />
+                          {project.status === "PENDING" && (
                             <ReviewActionDialog
                               project={project}
                               isRestricted={isRestricted}
                             />
-                          ) : (
-                            <ProjectDetailsDialog project={project} />
                           )}
                         </div>
                       </td>

@@ -24,7 +24,7 @@ The platform provides role-adaptive layouts and interfaces for 3 distinct roles:
    - Project submission dialog with GitHub URL validation and duplicate prevention.
    - Personal submissions list with real-time status badges (`PENDING`, `APPROVED`, `REJECTED`) and mentor review feedback notes.
    - Personal submission metrics.
-   - Profile overview in Settings (email visible, password change disabled).
+   - Profile overview in Settings with self-service password change.
 2. **MENTOR**:
    - Access to Mentor Review Dashboard.
    - Server-side paginated data table showing all student submissions.
@@ -32,15 +32,15 @@ The platform provides role-adaptive layouts and interfaces for 3 distinct roles:
    - Dedicated **"View Details" Modal**: Inspect complete submission information, full description, repo/demo links, and review records.
    - **One-Time Review Action Modal**: Approve or reject `PENDING` projects with feedback notes (review decisions are final and cannot be modified once set).
    - Aggregated platform review statistics.
-   - Profile overview in Settings (email visible, password change disabled).
+   - Profile overview in Settings with self-service password change.
 3. **ADMIN**:
    - Complete supervisor access to all platform capabilities.
-   - **Admin Analytics Dashboard**: High-density executive console with metric cards and production-grade ShadCN/Recharts visual charts (Submission volume, review outcomes distribution, pass rate trends).
-   - Complete access to Mentor review capabilities and review queue.
+   - **Admin Analytics Dashboard**: High-density executive console with metric cards and production-grade ShadCN/Recharts visual charts (default landing page for admin).
+   - Complete access to Mentor review capabilities and review queue (`/dashboard/reviews`).
    - Exclusive access to `/dashboard/users` (User Directory).
    - **"Add Mentor"** dialog to directly register new Mentors (Name, Email, Password).
    - User account status management (`ACTIVE`, `SUSPENDED`, `BANNED`). Role modification on existing accounts is disabled.
-   - Profile overview in Settings (email visible, password change disabled).
+   - Profile overview in Settings with self-service password change.
 
 ---
 
@@ -184,13 +184,15 @@ To ensure evaluators can grade the project in seconds without manual friction:
       - Submission Timestamp & Last Updated Timestamp
       - Evaluation Decision Badge (`PENDING`, `APPROVED`, `REJECTED`)
       - Reviewer information & full feedback notes (if reviewed) or "Awaiting mentor evaluation" status.
-- **Admin Overview & Visual Analytics**:
-  - `src/components/modules/admin/AdminAnalyticsDashboard.tsx` & `AdminCharts.tsx`:
-    - Designed as a real-world, data-dense engineering dashboard (zero cheesy AI gradients, zero emojis).
-    - Responsive Recharts components:
-      - **Submission & Review Volume Chart**: Bar or Area visualization tracking submissions vs reviews.
-      - **Review Decision Distribution**: Visual breakdown of Approved, Pending, and Rejected projects with pass-rate metric display.
-    - High-level KPI metric cards (Total Submissions, Pending Queue, Approvals, Rejections, Pass Rate, Total Accounts).
+- **Admin Overview & Visual Analytics (Completed)**:
+  - Route: `src/app/dashboard/analytics/page.tsx` (Protected for `ADMIN` role only, lean 27-line orchestrator per Rule 8).
+  - Navigation: Added "Analytics" item with `Analytics01Icon` to `Sidebar.tsx` for `ADMIN`.
+  - Component Architecture in `src/components/modules/admin/`:
+    - `AdminAnalyticsDashboard.tsx`: Container view assembling header, KPI metrics, and chart grid.
+    - `AnalyticsKpiCards.tsx`: 6 high-density metric cards (Total Submissions, Pending Queue, Approvals, Rejections, Pass Rate %, Platform Users).
+    - `ReviewDistributionChart.tsx`: Recharts interactive DonutChart breakdown of Approved, Pending, and Rejected projects with pass-rate indicator.
+    - `SubmissionVelocityChart.tsx`: Recharts BarChart comparing review queue workloads and resolved submission volumes.
+    - `UserGovernanceChart.tsx`: Recharts horizontal BarChart detailing account role composition (Students, Mentors, Admins) and active vs suspended/banned health.
 - **Mentor Dashboard View**:
   - Aggregated Statistics Cards (Total Submissions, Pending Queue, Approved, Rejected, Pass Rate).
   - Search and Status Filter bar.
@@ -220,19 +222,21 @@ To ensure evaluators can grade the project in seconds without manual friction:
 
 ---
 
-### Feature 6: Dashboard Settings Page (Profile Identity & Read-Only Email)
-**Goal**: Provide a clean profile settings page where the user can view their email, role, and details, with password changes disabled.
+### Feature 6: Dashboard Settings Page (Profile Identity & Password Security)
+**Goal**: Provide a clean profile settings page where the user can view their email, role, and details, and update their account password.
 
 - **Page**: `src/app/dashboard/settings/page.tsx`
-  - Profile Card displaying:
-    - User Full Name
-    - User Email Address (displayed with a copy/view badge, read-only)
-    - Role Badge (`ADMIN`, `MENTOR`, `STUDENT`)
-    - Account Status Badge (`ACTIVE`)
+  - Profile Identity Card (`ProfileIdentityCard`):
+    - User Full Name & Role Badge (`ADMIN`, `MENTOR`, `STUDENT`)
+    - Account Status Badge (`ACTIVE`, `SUSPENDED`, `BANNED`)
+    - Registered Email Address (with clipboard copy action)
     - Account Member Since Date
-  - Security Notice:
-    - Clear informational card stating: "Password updates are managed by platform administrators. Credential modifications are disabled for assessment evaluation."
-    - No password input fields or change password submission forms.
+  - Self-Service Change Password Card (`ChangePasswordCard`):
+    - Current Password field (with eye visibility toggle)
+    - New Password field (min 6 characters, with eye visibility toggle)
+    - Confirm New Password field (with matching validation)
+    - Integrated with `changePassword` server action and backend `/api/v1/auth/change-password`
+    - Real-time success and error feedback banners
 
 ---
 
@@ -240,9 +244,12 @@ To ensure evaluators can grade the project in seconds without manual friction:
 **Goal**: Unify layout and route protection based on the user's role.
 
 - **Sidebar Navigation (`Sidebar.tsx`)**:
-  - For `STUDENT`: "My Submissions", "Submit Project", "Settings".
-  - For `MENTOR`: "Review Queue", "Evaluations", "Statistics", "Settings".
-  - For `ADMIN`: "Review Queue", "Directory (Users)", "Platform Stats", "Settings".
+  - For `STUDENT`: "My Submissions" (`/dashboard`), "Settings" (`/dashboard/settings`).
+  - For `MENTOR`: "Review Queue" (`/dashboard`), "Settings" (`/dashboard/settings`).
+  - For `ADMIN`: "Analytics" (`/dashboard/analytics` - default landing page), "Review Queue" (`/dashboard/reviews`), "Users" (`/dashboard/users`), "Settings" (`/dashboard/settings`).
+- **Settings & Profile (`src/app/dashboard/settings/page.tsx`)**:
+  - Account Profile Identity card (`ProfileIdentityCard`) with email copy and registered date.
+  - Self-service Change Password card (`ChangePasswordCard`) with current/new password inputs and server action integration.
 - **Topbar (`Topbar.tsx`)**:
   - Displays user name, role badge (`ADMIN`, `MENTOR`, `STUDENT`), and Sign Out button.
 - **Verification**:

@@ -8,6 +8,7 @@ import { IProjectSubmissionItem } from "@/services/project/getMySubmissions";
 import StatusBadge from "@/components/shared/StatusBadge";
 import EmptyState from "@/components/shared/EmptyState";
 import SubmissionFormDialog from "./SubmissionFormDialog";
+import ProjectDetailsDialog from "./ProjectDetailsDialog";
 
 interface IStudentSubmissionsTableProps {
   submissions: IProjectSubmissionItem[];
@@ -36,6 +37,7 @@ export default function StudentSubmissionsTable({
             <th className="py-3 px-4">Submitted</th>
             <th className="py-3 px-4">Status</th>
             <th className="py-3 px-4">Mentor Feedback</th>
+            <th className="py-3 px-4 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 font-body">
@@ -119,6 +121,13 @@ export default function StudentSubmissionsTable({
                     Awaiting mentor evaluation
                   </span>
                 )}
+              </td>
+
+              {/* Actions */}
+              <td className="py-3 px-4 text-right">
+                <div className="flex items-center justify-end">
+                  <ProjectDetailsDialog project={item} />
+                </div>
               </td>
             </tr>
           ))}

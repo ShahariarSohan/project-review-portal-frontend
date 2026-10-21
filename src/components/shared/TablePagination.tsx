@@ -45,7 +45,7 @@ export default function TablePagination({
   };
 
   const currentLimit = searchParams.get("limit") || "10";
-  const effectiveTotalPages = Math.max(1, totalPages);
+  const hasMultiplePages = totalPages > 1;
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-3 border-t border-slate-200/80 text-xs font-body">
@@ -53,67 +53,70 @@ export default function TablePagination({
       <div className="text-slate-500 font-mono text-[11px]">
         {totalItems !== undefined && (
           <span>
-            Total: <strong className="text-slate-900 font-semibold">{totalItems}</strong> entries
+            Total: <strong className="text-slate-900 font-semibold">{totalItems}</strong>{" "}
+            {totalItems === 1 ? "entry" : "entries"}
           </span>
         )}
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex items-center gap-1.5">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigateToPage(currentPage - 1)}
-          disabled={currentPage <= 1 || isPending}
-          className="h-8 px-2.5 text-xs font-medium cursor-pointer"
-        >
-          <ArrowLeft01Icon className="w-3.5 h-3.5 mr-1" />
-          <span>Prev</span>
-        </Button>
+      {/* Pagination Controls - only visible when multiple pages exist */}
+      {hasMultiplePages && (
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateToPage(currentPage - 1)}
+            disabled={currentPage <= 1 || isPending}
+            className="h-8 px-2.5 text-xs font-medium cursor-pointer"
+          >
+            <ArrowLeft01Icon className="w-3.5 h-3.5 mr-1" />
+            <span>Prev</span>
+          </Button>
 
-        {/* Numbered Page Buttons */}
-        <div className="flex items-center gap-1">
-          {Array.from({ length: Math.min(5, effectiveTotalPages) }, (_, idx) => {
-            let pageNum: number;
-            if (effectiveTotalPages <= 5) {
-              pageNum = idx + 1;
-            } else if (currentPage <= 3) {
-              pageNum = idx + 1;
-            } else if (currentPage >= effectiveTotalPages - 2) {
-              pageNum = idx + (effectiveTotalPages - 4);
-            } else {
-              pageNum = idx + currentPage - 2;
-            }
+          {/* Numbered Page Buttons */}
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
+              let pageNum: number;
+              if (totalPages <= 5) {
+                pageNum = idx + 1;
+              } else if (currentPage <= 3) {
+                pageNum = idx + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = idx + (totalPages - 4);
+              } else {
+                pageNum = idx + currentPage - 2;
+              }
 
-            const isActive = pageNum === currentPage;
-            return (
-              <Button
-                key={pageNum}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => navigateToPage(pageNum)}
-                disabled={isPending}
-                className={`h-8 w-8 p-0 text-xs font-mono cursor-pointer ${
-                  isActive ? "bg-teal-800 hover:bg-teal-900 text-white" : ""
-                }`}
-              >
-                {pageNum}
-              </Button>
-            );
-          })}
+              const isActive = pageNum === currentPage;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => navigateToPage(pageNum)}
+                  disabled={isPending}
+                  className={`h-8 w-8 p-0 text-xs font-mono cursor-pointer ${
+                    isActive ? "bg-teal-800 hover:bg-teal-900 text-white" : ""
+                  }`}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages || isPending}
+            className="h-8 px-2.5 text-xs font-medium cursor-pointer"
+          >
+            <span>Next</span>
+            <ArrowRight01Icon className="w-3.5 h-3.5 ml-1" />
+          </Button>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigateToPage(currentPage + 1)}
-          disabled={currentPage >= effectiveTotalPages || isPending}
-          className="h-8 px-2.5 text-xs font-medium cursor-pointer"
-        >
-          <span>Next</span>
-          <ArrowRight01Icon className="w-3.5 h-3.5 ml-1" />
-        </Button>
-      </div>
+      )}
 
       {/* Page Size Selector */}
       <div className="flex items-center gap-2">

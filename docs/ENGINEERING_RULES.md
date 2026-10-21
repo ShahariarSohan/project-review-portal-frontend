@@ -125,10 +125,30 @@ Avoid all stereotypical "AI-generated" visual elements (purple-to-blue gradients
 - **Instant Student Signup**:
   - Registration at `/signup` creates active accounts (`isVerified: true`) with immediate JWT cookie issuance and redirects to `/dashboard`. No OTP verification required.
 - **Settings Page Specification**:
-  - In `/dashboard/settings`, the page displays a clean profile card showing: Full Name, Email (read-only), Role, and Status.
-  - **Password change is strictly disabled**: No password input fields or change password submission forms.
+  - In `/dashboard/settings`, the page displays the clean profile identity card (`ProfileIdentityCard`) alongside the self-service `ChangePasswordCard` allowing users to securely update their account password with current and new password verification.
 
 ---
+
+---
+
+## 8. Strict Clean `page.tsx` Architecture (Zero Jam-Packed Code Rule)
+
+- **Mandatory Lean Orchestrator Pattern**:
+  - Every `page.tsx` must be an ultra-lean orchestrator strictly under **30 to 60 lines of code**.
+  - A `page.tsx` file must **NEVER** be messy, crowded, or jam-packed with presentation markup, inline forms, or inline business logic.
+- **Single Responsibility of `page.tsx`**:
+  - `page.tsx` has exactly three permitted duties:
+    1. Resolve route parameters (`searchParams`, `params`).
+    2. Perform high-level server-side data fetching or route-level authorization guards (`redirect`).
+    3. Wire data and pass props to dedicated modular child components.
+- **Strictly Prohibited Inside `page.tsx`**:
+  - **No Inline Forms**: Never write `<form>`, `<input>`, password toggles, or form state hooks inside `page.tsx`. Extract to `src/components/modules/<domain>/<Action>Form.tsx`.
+  - **No Inline Tables**: Never write `<table>`, `<thead>`, `<tbody>`, or row iteration markup in `page.tsx`. Extract to `src/components/modules/<domain>/<Domain>Table.tsx`.
+  - **No Inline Modals or Dialogs**: Extract all dialog containers, triggers, and action sheets to `src/components/modules/<domain>/<Feature>Dialog.tsx`.
+  - **No Multi-Role Layout Sprawl**: When a dashboard renders distinct views per role (e.g., Student vs. Mentor), each view must be decomposed into dedicated view components (`StudentDashboardView.tsx`, `MentorDashboardView.tsx`).
+  - **No Inline Helper Functions**: Formatters, string manipulators, or calculations must be extracted into pure helper functions in `src/lib/` or `src/utils/`.
+- **Auditing Benchmark**:
+  - Any developer or reviewer inspecting a `page.tsx` must be able to read the entire file in a single screenful without scrolling and immediately understand the route's composition.
 
 ---
 
