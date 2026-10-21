@@ -12,17 +12,19 @@ import ProjectDetailsDialog from "./ProjectDetailsDialog";
 
 interface IStudentSubmissionsTableProps {
   submissions: IProjectSubmissionItem[];
+  isRestricted?: boolean;
 }
 
 export default function StudentSubmissionsTable({
   submissions,
+  isRestricted,
 }: IStudentSubmissionsTableProps) {
   if (submissions.length === 0) {
     return (
       <EmptyState
         title="No Project Submissions Yet"
         description="You have not submitted any projects for evaluation. Submit your GitHub repository details to begin the review process."
-        action={<SubmissionFormDialog />}
+        action={<SubmissionFormDialog isRestricted={isRestricted} />}
       />
     );
   }

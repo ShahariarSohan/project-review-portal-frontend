@@ -63,7 +63,10 @@ export default function StudentDashboardView({
             Real-time review status and evaluation feedback notes
           </p>
         </div>
-        <StudentSubmissionsTable submissions={submissions} />
+        <StudentSubmissionsTable
+          submissions={submissions}
+          isRestricted={isRestricted}
+        />
       </div>
     </div>
   );

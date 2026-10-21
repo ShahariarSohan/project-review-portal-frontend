@@ -18,12 +18,9 @@ export const createProjectSchema = z.object({
   liveUrl: z
     .string()
     .trim()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (val) => !val || /^https:\/\/.+/.test(val),
-      "Live demo link must be a valid secure URL starting with https://"
-    ),
+    .min(1, "Live demo URL is required")
+    .url("Please provide a valid URL")
+    .regex(/^https:\/\/.+/, "Live demo link must be a valid secure URL starting with https://"),
   description: z
     .string()
     .trim()

@@ -70,6 +70,16 @@ To ensure evaluators can grade the project in seconds without manual friction:
    - Server-side data fetching happens before HTML streams to the browser.
    - `TablePagination.tsx`, `SelectFilter.tsx`, and `SearchFilter.tsx` update URL search parameters via `useTransition()` and `router.push()`, triggering native Server Component re-renders with automatic cache revalidation.
 
+3. **Account Suspension & Banning UX Protocol**:
+   - **`BANNED` (Hard Revocation / Total Expulsion)**:
+     - User is completely denied entry into the dashboard.
+     - Login attempt fails with `"Your account has been permanently banned. Access is revoked."`
+     - If an active session is banned, `/dashboard/*` intercepts the user and redirects to `/banned` termination screen with zero dashboard data exposure.
+   - **`SUSPENDED` (Pattern A: Read-Only Access & Transparent Evaluation)**:
+     - Suspended users can log in and view their personal submissions and mentor feedback notes.
+     - `AccountRestrictionBanner` displays at the top of the dashboard notifying them of temporary hold.
+     - All mutation buttons (`Submit New Project` in student view, `Review` in mentor view) are disabled and display a restricted indicator.
+
 ---
 
 ## 5. Feature-by-Feature Implementation Sequence
@@ -130,17 +140,17 @@ To ensure evaluators can grade the project in seconds without manual friction:
 
 - **Validation Schema** in `src/zod/project.validation.ts`:
   - `projectSubmissionSchema`:
-    - `title`: string (min 3, max 100)
-    - `repoUrl`: valid URL matching git/github pattern
-    - `liveUrl`: optional valid URL
+    - `title`: string (min 3, max 100, duplicate detection against active submissions)
+    - `repoUrl`: valid URL matching git/github pattern (duplicate detection against active submissions)
+    - `liveUrl`: mandatory valid secure URL (min 1, https://, duplicate detection against active submissions)
     - `description`: string (min 20, max 3000)
 - **Server Actions** in `src/services/project/`:
-  - `submitProject.ts`: Server action validating form with `zodValidator`, sending `POST /api/v1/projects` via `serverFetch`. Catches HTTP 409 (duplicate) and HTTP 429 (rate limit with retryAfterSeconds), mapping them to a dedicated non-destructive countdown alert banner.
+  - `submitProject.ts`: Server action validating form with `zodValidator`, sending `POST /api/v1/projects` via `serverFetch`. Catches HTTP 409 (multi-field duplicate conflicts across title, repoUrl, and liveUrl) and HTTP 429 (rate limit with retryAfterSeconds), mapping them to a dedicated non-destructive countdown alert banner.
   - `getMySubmissions.ts`: Server fetcher calling `GET /api/v1/projects/my-submissions`.
   - `getMyStats.ts`: Server fetcher calling `GET /api/v1/projects/my-stats`.
 - **Components & Views**:
   - `src/components/modules/projects/SubmissionFormDialog.tsx`:
-    - Modal dialog with inputs for Title, GitHub Repo URL, Live Demo Link, and Description.
+    - Modal dialog with inputs for Title, GitHub Repo URL, Mandatory Live Demo Link, and Description.
     - Form submit state with disabled button and spinner preventing duplicate submission clicks.
     - Renders server validation errors and handles duplicate/rate-limit alerts cleanly.
   - `src/app/dashboard/page.tsx` (Student View):

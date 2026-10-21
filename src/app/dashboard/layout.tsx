@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { getUserProfile } from "@/services/auth/auth";
@@ -9,6 +10,14 @@ export default async function DashboardLayout({
 }) {
   const profileRes = await getUserProfile();
   const user = profileRes.data;
+
+  if (!user) {
+    redirect("/");
+  }
+
+  if (user.status === "BANNED") {
+    redirect("/banned");
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">

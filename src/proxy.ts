@@ -5,7 +5,10 @@ export function proxy(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/dashboard") && !accessToken) {
+  if (
+    (pathname.startsWith("/dashboard") || pathname.startsWith("/banned")) &&
+    !accessToken
+  ) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -17,5 +20,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/", "/signup"],
+  matcher: ["/dashboard/:path*", "/banned", "/", "/signup"],
 };

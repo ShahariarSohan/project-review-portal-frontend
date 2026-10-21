@@ -24,7 +24,7 @@ export const submitProject = async (
     const payload = {
       title: formData.get("title"),
       repoUrl: formData.get("repoUrl"),
-      liveUrl: formData.get("liveUrl") || undefined,
+      liveUrl: formData.get("liveUrl"),
       description: formData.get("description"),
     };
 
@@ -52,7 +52,7 @@ export const submitProject = async (
         isDuplicate: true,
         message:
           result.message ||
-          "You already have an active or approved submission for this repository URL.",
+          "You already have an active or approved submission with these project details.",
       };
     }
 

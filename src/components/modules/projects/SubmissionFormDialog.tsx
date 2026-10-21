@@ -174,7 +174,7 @@ export default function SubmissionFormDialog({
 
           <div>
             <Label htmlFor="liveUrl" className="mb-1 block text-[11px]">
-              Live Demo URL (Optional)
+              Live URL
             </Label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -186,6 +186,7 @@ export default function SubmissionFormDialog({
                 type="url"
                 className="pl-9 font-mono"
                 placeholder="https://project-demo.vercel.app"
+                required
               />
             </div>
             <InputFieldError field="liveUrl" state={state} />
