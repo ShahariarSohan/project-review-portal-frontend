@@ -12,6 +12,7 @@ import {
   Shield01Icon,
 } from "hugeicons-react";
 import { logoutUser } from "@/services/auth/auth";
+import toast from "@/lib/toast";
 
 interface ISidebarProps {
   user?: {
@@ -29,7 +30,9 @@ export default function Sidebar({ user }: ISidebarProps) {
 
   const handleLogout = async () => {
     await logoutUser();
+    toast.success("Logged out successfully!");
     router.push("/");
+    router.refresh();
   };
 
   const getMenuItems = () => {

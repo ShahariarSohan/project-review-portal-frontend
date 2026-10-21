@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import ToastProvider from "@/components/shared/ToastProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -36,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${jakarta.variable} ${mono.variable}`}>
       <body className="antialiased min-h-screen bg-[#f8fafc] text-slate-900 font-sans">
+        <ToastProvider />
         {children}
       </body>
     </html>

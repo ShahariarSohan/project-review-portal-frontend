@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "@/lib/toast";
 import {
   UserAdd01Icon,
   Mail01Icon,
@@ -27,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import InputFieldError from "@/components/shared/InputFieldError";
 
 export default function AddMentorDialog() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
@@ -39,15 +42,16 @@ export default function AddMentorDialog() {
 
   useEffect(() => {
     if (state?.success) {
+      toast.success("Mentor registered successfully!");
       setName("");
       setEmail("");
       setPassword("");
-      const timer = setTimeout(() => {
-        setOpen(false);
-      }, 1200);
-      return () => clearTimeout(timer);
+      setOpen(false);
+      router.refresh();
+    } else if (state?.message && !state?.success) {
+      toast.error(state.message);
     }
-  }, [state?.success]);
+  }, [state, router]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

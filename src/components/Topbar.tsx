@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Settings02Icon, Logout01Icon } from "hugeicons-react";
 import { logoutUser } from "@/services/auth/auth";
+import toast from "@/lib/toast";
 
 interface ITopbarProps {
   user?: {
@@ -32,7 +33,9 @@ export default function Topbar({ user }: ITopbarProps) {
 
   const handleLogout = async () => {
     await logoutUser();
+    toast.success("Logged out successfully!");
     router.push("/");
+    router.refresh();
   };
 
   const displayName = user?.name || "Member";

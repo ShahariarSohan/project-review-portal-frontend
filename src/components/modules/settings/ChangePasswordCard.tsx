@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "@/lib/toast";
 import { LockPasswordIcon, ViewIcon, ViewOffIcon } from "hugeicons-react";
 import { changePassword } from "@/services/auth/auth";
 import { Button } from "@/components/ui/button";
@@ -44,15 +45,18 @@ export default function ChangePasswordCard() {
     try {
       const res = await changePassword({ currentPassword, newPassword });
       if (res.success) {
+        toast.success("Password updated successfully.");
         setStatusMsg("Password updated successfully.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       } else {
+        toast.error(res.message || "Failed to update password.");
         setIsError(true);
         setStatusMsg(res.message || "Failed to update password.");
       }
     } catch (err: any) {
+      toast.error(err.message || "An unexpected error occurred.");
       setIsError(true);
       setStatusMsg(err.message || "An unexpected error occurred.");
     } finally {

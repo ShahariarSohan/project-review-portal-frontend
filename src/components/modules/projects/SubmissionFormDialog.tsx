@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "@/lib/toast";
 import {
   Add01Icon,
   GithubIcon,
@@ -33,6 +35,7 @@ interface ISubmissionFormDialogProps {
 export default function SubmissionFormDialog({
   isRestricted,
 }: ISubmissionFormDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<
     IProjectSubmissionState | null,
@@ -45,19 +48,20 @@ export default function SubmissionFormDialog({
   const [liveUrl, setLiveUrl] = useState("");
   const [description, setDescription] = useState("");
 
-  // Auto-close and clear on success
+  // Handle toast notifications and modal state on completion
   useEffect(() => {
     if (state?.success) {
+      toast.success("Project submitted successfully!");
       setTitle("");
       setRepoUrl("");
       setLiveUrl("");
       setDescription("");
-      const timer = setTimeout(() => {
-        setOpen(false);
-      }, 1200);
-      return () => clearTimeout(timer);
+      setOpen(false);
+      router.refresh();
+    } else if (state?.message && !state?.success) {
+      toast.error(state.message);
     }
-  }, [state?.success]);
+  }, [state, router]);
 
   // Rate limit dynamic countdown
   useEffect(() => {

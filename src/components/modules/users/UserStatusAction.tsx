@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import toast from "@/lib/toast";
 import {
   CheckmarkCircle02Icon,
   Cancel01Icon,
@@ -52,9 +53,11 @@ export default function UserStatusAction({
     startTransition(async () => {
       const result = await updateUserStatus(user.id, newStatus);
       if (result.success) {
+        toast.success(`User status updated to ${newStatus.toLowerCase()}`);
         setFeedback("Updated");
         setFeedbackType("success");
       } else {
+        toast.error(result.message || "Failed to update user status");
         setFeedback(result.message || "Failed");
         setFeedbackType("error");
       }

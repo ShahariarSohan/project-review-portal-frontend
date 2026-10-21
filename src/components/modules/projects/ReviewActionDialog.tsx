@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "@/lib/toast";
 import {
   CheckmarkCircle02Icon,
   Cancel01Icon,
@@ -32,6 +34,7 @@ export default function ReviewActionDialog({
   project,
   isRestricted,
 }: IReviewActionDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<"APPROVED" | "REJECTED">(
     project.status === "REJECTED" ? "REJECTED" : "APPROVED"
@@ -45,10 +48,13 @@ export default function ReviewActionDialog({
 
   useEffect(() => {
     if (state?.success) {
-      const timer = setTimeout(() => setOpen(false), 1000);
-      return () => clearTimeout(timer);
+      toast.success("Review submitted successfully!");
+      setOpen(false);
+      router.refresh();
+    } else if (state?.message && !state?.success) {
+      toast.error(state.message);
     }
-  }, [state?.success]);
+  }, [state, router]);
 
   if (isRestricted) {
     return (
@@ -201,11 +207,7 @@ export default function ReviewActionDialog({
                   : "bg-rose-700 hover:bg-rose-800"
               }`}
             >
-              {isPending
-                ? "Recording..."
-                : selectedStatus === "APPROVED"
-                ? "Confirm Approval"
-                : "Confirm Rejection"}
+              {isPending ? "Submitting..." : "Submit Review Decision"}
             </Button>
           </div>
         </form>
