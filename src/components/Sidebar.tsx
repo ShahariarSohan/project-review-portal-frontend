@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   DashboardSquare01Icon,
   Folder01Icon,
-  FileValidationIcon,
   UserGroupIcon,
   Settings02Icon,
   Logout01Icon,
@@ -13,7 +12,17 @@ import {
 } from "hugeicons-react";
 import { logoutUser } from "@/services/auth/auth";
 
-export default function Sidebar() {
+interface ISidebarProps {
+  user?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    role?: "ADMIN" | "MENTOR" | "STUDENT";
+    status?: string;
+  } | null;
+}
+
+export default function Sidebar({ user }: ISidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,13 +31,38 @@ export default function Sidebar() {
     router.push("/");
   };
 
-  const menuItems = [
-    { name: "Overview", icon: DashboardSquare01Icon, path: "/dashboard" },
-    { name: "Projects", icon: Folder01Icon, path: "/dashboard/projects" },
-    { name: "Reviews", icon: FileValidationIcon, path: "/dashboard/reviews" },
-    { name: "Directory", icon: UserGroupIcon, path: "/dashboard/users" },
-    { name: "Settings", icon: Settings02Icon, path: "/dashboard/settings" },
-  ];
+  const getMenuItems = () => {
+    const role = user?.role;
+
+    // Overview item tailored to role
+    const items = [
+      {
+        name: role === "STUDENT" ? "My Submissions" : "Review Queue",
+        icon: role === "STUDENT" ? Folder01Icon : DashboardSquare01Icon,
+        path: "/dashboard",
+      },
+    ];
+
+    // Only administrators have access to user management
+    if (role === "ADMIN") {
+      items.push({
+        name: "Users",
+        icon: UserGroupIcon,
+        path: "/dashboard/users",
+      });
+    }
+
+    // Settings is accessible to all authenticated users
+    items.push({
+      name: "Settings",
+      icon: Settings02Icon,
+      path: "/dashboard/settings",
+    });
+
+    return items;
+  };
+
+  const menuItems = getMenuItems();
 
   const isActive = (path: string) => {
     if (path === "/dashboard") {
@@ -75,10 +109,14 @@ export default function Sidebar() {
             >
               <Icon
                 className={`w-4 h-4 transition-colors ${
-                  active ? "text-teal-400 stroke-[2.2]" : "text-slate-500 group-hover:text-slate-300"
+                  active
+                    ? "text-teal-400 stroke-[2.2]"
+                    : "text-slate-500 group-hover:text-slate-300"
                 }`}
               />
-              <span className="font-heading text-xs font-semibold tracking-wide">{item.name}</span>
+              <span className="font-heading text-xs font-semibold tracking-wide">
+                {item.name}
+              </span>
             </Link>
           );
         })}
@@ -87,7 +125,7 @@ export default function Sidebar() {
       <div className="p-3 border-t border-slate-800/60">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold font-heading tracking-wide text-slate-400 hover:bg-slate-800/60 hover:text-rose-400 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold font-heading tracking-wide text-slate-400 hover:bg-slate-800/60 hover:text-rose-400 transition-colors cursor-pointer"
         >
           <Logout01Icon className="w-4 h-4 text-slate-500 group-hover:text-rose-400" />
           <span>Sign Out</span>

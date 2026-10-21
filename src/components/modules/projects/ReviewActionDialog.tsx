@@ -25,9 +25,13 @@ import InputFieldError from "@/components/shared/InputFieldError";
 
 interface IReviewActionDialogProps {
   project: IProjectItem;
+  isRestricted?: boolean;
 }
 
-export default function ReviewActionDialog({ project }: IReviewActionDialogProps) {
+export default function ReviewActionDialog({
+  project,
+  isRestricted,
+}: IReviewActionDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<"APPROVED" | "REJECTED">(
     project.status === "REJECTED" ? "REJECTED" : "APPROVED"
@@ -45,6 +49,20 @@ export default function ReviewActionDialog({ project }: IReviewActionDialogProps
       return () => clearTimeout(timer);
     }
   }, [state?.success]);
+
+  if (isRestricted) {
+    return (
+      <Button
+        size="sm"
+        disabled
+        className="h-8 px-2.5 text-xs font-heading font-medium opacity-50 cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200 shadow-none"
+        title="Evaluator account is suspended or banned"
+      >
+        <NoteIcon className="w-3.5 h-3.5 mr-1" />
+        <span>Restricted</span>
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -10,9 +10,13 @@ import ProjectDetailsDialog from "./ProjectDetailsDialog";
 
 interface IMentorReviewTableProps {
   data: IProjectListResponse;
+  isRestricted?: boolean;
 }
 
-export default function MentorReviewTable({ data }: IMentorReviewTableProps) {
+export default function MentorReviewTable({
+  data,
+  isRestricted,
+}: IMentorReviewTableProps) {
   const { data: projects, meta } = data;
 
   return (
@@ -135,7 +139,10 @@ export default function MentorReviewTable({ data }: IMentorReviewTableProps) {
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end">
                           {project.status === "PENDING" ? (
-                            <ReviewActionDialog project={project} />
+                            <ReviewActionDialog
+                              project={project}
+                              isRestricted={isRestricted}
+                            />
                           ) : (
                             <ProjectDetailsDialog project={project} />
                           )}

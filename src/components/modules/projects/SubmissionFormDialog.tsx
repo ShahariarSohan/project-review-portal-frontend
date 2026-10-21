@@ -8,6 +8,7 @@ import {
   NoteIcon,
   AlertCircleIcon,
   CheckmarkCircle02Icon,
+  Cancel01Icon,
 } from "hugeicons-react";
 import submitProject, {
   IProjectSubmissionState,
@@ -25,7 +26,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import InputFieldError from "@/components/shared/InputFieldError";
 
-export default function SubmissionFormDialog() {
+interface ISubmissionFormDialogProps {
+  isRestricted?: boolean;
+}
+
+export default function SubmissionFormDialog({
+  isRestricted,
+}: ISubmissionFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<
     IProjectSubmissionState | null,
@@ -60,6 +67,19 @@ export default function SubmissionFormDialog() {
       return () => clearInterval(interval);
     }
   }, [state?.isRateLimited, state?.retryAfterSeconds]);
+
+  if (isRestricted) {
+    return (
+      <Button
+        disabled
+        className="opacity-60 cursor-not-allowed bg-slate-200 text-slate-500 font-heading font-semibold text-xs h-9 px-4 rounded-lg flex items-center gap-1.5 shadow-none"
+        title="Student account is suspended or banned"
+      >
+        <Cancel01Icon className="w-4 h-4 stroke-[2]" />
+        <span>Submissions Restricted</span>
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

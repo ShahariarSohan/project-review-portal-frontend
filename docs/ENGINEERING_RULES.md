@@ -36,6 +36,13 @@ This document defines the non-negotiable engineering principles, code organizati
   - `src/services/`:
     - Separate server action and fetcher files for each domain (`auth`, `project`, `user`).
 
+- **Clean Page Architecture (Zero Jam-Packed `page.tsx` Files)**:
+  - Every `page.tsx` must be lean, clean, and concise (ideally under 60 to 100 lines of code).
+  - A `page.tsx` file is an orchestrator: its primary responsibility is strictly to read route parameters (`searchParams`, `params`), execute server-side data fetching or authentication checks, and compose dedicated child components.
+  - **Strictly No Jam-Packed Markup**: Never cram massive forms, complex JSX structures, inline tables, multiple sub-components, or dense presentation markup directly inside `page.tsx`.
+  - **Mandatory Component & Function Extraction**: Always split UI code into dedicated modular components inside `src/components/modules/<domain>/` (e.g., `LoginForm.tsx`, `SignupForm.tsx`, `UsersTable.tsx`) and helper functions in `src/lib/`.
+  - Maintain high readability: An engineer reading any `page.tsx` must immediately grasp the high-level layout and page hierarchy without wading through hundreds of lines of nested UI elements.
+
 ---
 
 ## 3. Anti-AI Design System & Visual Architecture
@@ -141,3 +148,10 @@ Avoid all stereotypical "AI-generated" visual elements (purple-to-blue gradients
   1. Compile and type-check with `npx tsc --noEmit`.
   2. Verify responsive layout, design consistency, and zero console errors.
   3. Await user review and confirmation before starting the next feature.
+
+---
+
+## 11. Git Push Restriction Protocol
+
+- **Zero Autonomous Git Pushes**: AI agents and automated scripts must **NEVER** run `git push` to GitHub or any remote repository.
+- **Manual User Push Only**: All remote synchronization (`git push origin main` or other branches) must be performed manually by the repository owner from their terminal. Agents are only permitted to make local commits (`git commit`) when appropriate.

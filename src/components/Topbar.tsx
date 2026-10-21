@@ -3,16 +3,21 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Settings02Icon,
-  Logout01Icon,
-} from "hugeicons-react";
-import { logoutUser, getUserProfile } from "@/services/auth/auth";
+import { Settings02Icon, Logout01Icon } from "hugeicons-react";
+import { logoutUser } from "@/services/auth/auth";
 
-export default function Topbar() {
+interface ITopbarProps {
+  user?: {
+    name?: string;
+    email?: string;
+    role?: string;
+    status?: string;
+  } | null;
+}
+
+export default function Topbar({ user }: ITopbarProps) {
   const router = useRouter();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const adminRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,26 +30,14 @@ export default function Topbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await getUserProfile();
-      if (res.success && res.data) {
-        setUser(res.data);
-      } else {
-        setUser({
-          name: "Portal Admin",
-          email: "admin@reviewportal.com",
-          role: "ADMIN",
-        });
-      }
-    };
-    fetchUser();
-  }, []);
-
   const handleLogout = async () => {
     await logoutUser();
     router.push("/");
   };
+
+  const displayName = user?.name || "Member";
+  const displayRole = user?.role || "STUDENT";
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   return (
     <header className="h-14 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-10">
@@ -65,47 +58,46 @@ export default function Topbar() {
             className="flex items-center gap-2.5 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <div className="w-8 h-8 rounded-md bg-teal-800 text-teal-100 flex items-center justify-center font-heading font-bold text-xs border border-teal-700">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "A"}
+              {avatarLetter}
             </div>
             <div className="flex flex-col text-left">
               <span className="font-heading text-xs font-semibold text-slate-800">
-                {user?.name || "Admin"}
+                {displayName}
               </span>
               <span className="font-mono text-[10px] text-teal-700 uppercase tracking-wider font-semibold">
-                {user?.role || "ADMIN"}
+                {displayRole}
               </span>
             </div>
           </div>
 
           {isAdminOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-md border border-slate-200 py-1.5 z-50">
-              <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                <p className="text-[10px] font-heading font-semibold uppercase tracking-wider text-slate-400">
-                  Signed in as
+            <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-slate-200/80 py-1.5 z-50 font-body">
+              <div className="px-3.5 py-2 border-b border-slate-100">
+                <p className="font-heading font-semibold text-xs text-slate-900 truncate">
+                  {displayName}
                 </p>
-                <p className="font-mono text-xs text-slate-700 truncate mt-0.5">
-                  {user?.email || "admin@reviewportal.com"}
+                <p className="font-mono text-[11px] text-slate-500 truncate">
+                  {user?.email || ""}
                 </p>
               </div>
 
-              <Link
-                href="/dashboard/settings"
-                onClick={() => setIsAdminOpen(false)}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-xs font-heading font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                <Settings02Icon className="w-4 h-4 text-slate-500" />
-                <span>Account Settings</span>
-              </Link>
-
-              <div className="h-px bg-slate-100 my-1"></div>
-
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-heading font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
-              >
-                <Logout01Icon className="w-4 h-4 text-rose-500" />
-                <span>Sign Out</span>
-              </button>
+              <div className="py-1">
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setIsAdminOpen(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-teal-800 transition-colors"
+                >
+                  <Settings02Icon className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Profile Settings</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50/60 transition-colors text-left cursor-pointer"
+                >
+                  <Logout01Icon className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
